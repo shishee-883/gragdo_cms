@@ -26,6 +26,7 @@ interface TreatmentFormProps {
   onCancel: () => void
   initialData?: Partial<TreatmentFormData>
   clinicId?: string
+  currentUser: any
 }
 
 export function TreatmentForm({
@@ -33,9 +34,9 @@ export function TreatmentForm({
   onCancel,
   initialData,
   clinicId,
+  currentUser
 }: TreatmentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
   
   const {
     register,
@@ -50,7 +51,7 @@ export function TreatmentForm({
     setIsSubmitting(true)
     
     try {
-      const effectiveClinicId = clinicId || user?.clinicId
+      const effectiveClinicId = clinicId || currentUser?.clinicId
       
       if (!effectiveClinicId) {
         throw new Error("Clinic ID is required")

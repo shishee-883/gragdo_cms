@@ -12,6 +12,7 @@ import { MedicineForm } from "./medicine-form"
 import { deleteMedicine } from "@/lib/actions/medicines"
 import { TableLayout } from "@/components/shared/table-layout"
 import { MobileCard } from "@/components/shared/mobile-card"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface Medicine {
   id: string
@@ -37,6 +38,16 @@ export function MedicineClient({ initialMedicines }: MedicineClientProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     const filtered = medicines.filter((medicine) =>
@@ -97,6 +108,7 @@ export function MedicineClient({ initialMedicines }: MedicineClientProps) {
             setIsFormOpen(false)
             setEditingMedicine(null)
           }}
+          currentUser={currentUser}
         />
       </DialogContent>
     </Dialog>
@@ -105,16 +117,16 @@ export function MedicineClient({ initialMedicines }: MedicineClientProps) {
   // Table Header
   const tableHeader = (
     <TableRow>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">S.No</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Medicine Name</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Manufacturer</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Batch number</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Medicine Type</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Dosage</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Manufactured Date</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Expiry Date</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Price</TableHead>
-      <TableHead className="text-[#888888] text-lg font-sf-pro font-medium">Action</TableHead>
+      <TableHead>S.No</TableHead>
+      <TableHead>Medicine Name</TableHead>
+      <TableHead>Manufacturer</TableHead>
+      <TableHead>Batch number</TableHead>
+      <TableHead>Medicine Type</TableHead>
+      <TableHead>Dosage</TableHead>
+      <TableHead>Manufactured Date</TableHead>
+      <TableHead>Expiry Date</TableHead>
+      <TableHead>Price</TableHead>
+      <TableHead>Action</TableHead>
     </TableRow>
   )
 

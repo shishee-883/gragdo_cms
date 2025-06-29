@@ -1,4 +1,3 @@
-// components/prescriptions/prescription-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -36,16 +35,17 @@ interface PrescriptionFormProps {
   onSubmit: (data: PrescriptionFormData) => void
   onCancel: () => void
   initialData?: Partial<PrescriptionFormData>
+  currentUser: any
 }
 
 export function PrescriptionForm({
   onSubmit,
   onCancel,
   initialData,
+  currentUser
 }: PrescriptionFormProps) {
   const [uploadedFiles, setUploadedFiles] = useState<{name: string, url: string}[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
 
   const {
     register,
@@ -70,7 +70,7 @@ export function PrescriptionForm({
     setIsSubmitting(true)
     
     try {
-      const clinicId = user?.clinicId
+      const clinicId = currentUser?.clinicId
       
       if (!clinicId) {
         throw new Error("No clinic ID available")
@@ -97,7 +97,7 @@ export function PrescriptionForm({
         instructions: data.instructions,
         followUpDate: data.followUpDate,
         document: documentUrl,
-        createdById: user?.id || ""
+        createdById: currentUser?.id || ""
       }
       
       const result = await createPrescriptionRecord(prescriptionData)

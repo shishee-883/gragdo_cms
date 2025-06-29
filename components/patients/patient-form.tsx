@@ -1,4 +1,3 @@
-// components/patients/patient-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -44,16 +43,17 @@ interface PatientFormProps {
   onSubmit: (data: PatientFormData) => void
   onCancel: () => void
   initialData?: Partial<PatientFormData>
+  currentUser: any
 }
 
 export function PatientForm({
   onSubmit,
   onCancel,
   initialData,
+  currentUser
 }: PatientFormProps) {
   const [uploadedFiles, setUploadedFiles] = useState<{name: string, url: string}[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
 
   const {
     register,
@@ -78,7 +78,7 @@ export function PatientForm({
     setIsSubmitting(true)
     
     try {
-      const clinicId = user?.clinicId
+      const clinicId = currentUser?.clinicId
       
       if (!clinicId) {
         throw new Error("No clinic ID available")
@@ -99,7 +99,7 @@ export function PatientForm({
         medicalHistory: "",
         allergies: [],
         clinicId,
-        createdById: user?.id || "",
+        createdById: currentUser?.id || "",
         documents: uploadedFiles.map(file => ({
           name: file.name,
           type: "OTHER",

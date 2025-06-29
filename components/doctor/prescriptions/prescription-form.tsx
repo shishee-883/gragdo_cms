@@ -53,12 +53,14 @@ interface PrescriptionFormProps {
   patient: Patient | null
   onSubmit: (data: PrescriptionFormData) => void
   onCancel: () => void
+  currentUser?: any
 }
 
 export function PrescriptionForm({
   patient,
   onSubmit,
   onCancel,
+  currentUser
 }: PrescriptionFormProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [medicines, setMedicines] = useState([

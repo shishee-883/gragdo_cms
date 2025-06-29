@@ -1,4 +1,3 @@
-// components/admin/medicine/medicine-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -51,12 +50,14 @@ interface MedicineFormProps {
   initialData?: Medicine
   onSubmit: (data: MedicineFormData) => void
   onCancel: () => void
+  currentUser: any
 }
 
-export function MedicineForm({
+export function MedicineForm({ 
   initialData,
   onSubmit,
   onCancel,
+  currentUser
 }: MedicineFormProps) {
   const [medicineRows, setMedicineRows] = useState([
     {
@@ -73,7 +74,6 @@ export function MedicineForm({
   ])
   const [medicineImages, setMedicineImages] = useState<{id: number, name: string, url: string}[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
 
   const addNewRow = () => {
     setMedicineRows([...medicineRows, {
@@ -116,7 +116,7 @@ export function MedicineForm({
     setIsSubmitting(true)
     
     try {
-      const clinicId = user?.clinicId
+      const clinicId = currentUser?.clinicId
       
       if (!clinicId) {
         throw new Error("No clinic ID available")
@@ -139,7 +139,7 @@ export function MedicineForm({
           stock: 100, // Default value
           reorderLevel: 10, // Default value
           clinicId,
-          createdById: user?.id || "",
+          createdById: currentUser?.id || "",
           imageUrls: images
         }
         

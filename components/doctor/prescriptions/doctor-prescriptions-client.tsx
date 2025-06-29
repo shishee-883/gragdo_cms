@@ -26,6 +26,7 @@ import {
 import { Plus, Search, PenSquare, Trash2, Eye, FileText } from "lucide-react"
 import { PrescriptionForm } from "@/components/doctor/prescriptions/prescription-form"
 import { PrescriptionViewer } from "@/components/doctor/prescriptions/prescription-viewer"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface Prescription {
   id: string
@@ -82,6 +83,16 @@ export function DoctorPrescriptionsClient({
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
   const [viewingPrescription, setViewingPrescription] = useState<Prescription | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     // Filter prescriptions based on search term
@@ -380,6 +391,7 @@ export function DoctorPrescriptionsClient({
             patient={selectedPatient}
             onSubmit={handleSubmit}
             onCancel={() => setIsFormOpen(false)}
+            currentUser={currentUser}
           />
         </DialogContent>
       </Dialog>

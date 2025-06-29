@@ -31,6 +31,7 @@ import {
 import { Plus, Search, PenSquare, Trash2, MoreHorizontal } from "lucide-react"
 import { createPatient, updatePatient, deletePatient } from "@/lib/actions/patients"
 import { PatientForm } from "./patient-form"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface Patient {
   id: string
@@ -72,6 +73,16 @@ export function PatientsClient({ initialPatients }: PatientsClientProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingPatient, setEditingPatient] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     // Filter patients based on search term
@@ -159,6 +170,7 @@ export function PatientsClient({ initialPatients }: PatientsClientProps) {
             <PatientForm
               onSubmit={handleSubmit}
               onCancel={() => setIsFormOpen(false)}
+              currentUser={currentUser}
             />
           </DialogContent>
         </Dialog>
@@ -215,6 +227,7 @@ export function PatientsClient({ initialPatients }: PatientsClientProps) {
                   <PatientForm
                     onSubmit={handleSubmit}
                     onCancel={() => setIsFormOpen(false)}
+                    currentUser={currentUser}
                   />
                 </DialogContent>
               </Dialog>

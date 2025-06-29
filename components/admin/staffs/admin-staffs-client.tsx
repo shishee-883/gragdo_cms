@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Plus, Search, PenSquare, Trash2 } from "lucide-react"
 import { StaffForm } from "./staff-form"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface Staff {
   id: string
@@ -70,6 +71,16 @@ export function AdminStaffsClient({ initialStaff }: AdminStaffsClientProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingStaff, setEditingStaff] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     const filtered = staff.filter((member) =>
@@ -137,6 +148,7 @@ export function AdminStaffsClient({ initialStaff }: AdminStaffsClientProps) {
             <StaffForm
               onSubmit={handleSubmit}
               onCancel={() => setIsFormOpen(false)}
+              currentUser={currentUser}
             />
           </DialogContent>
         </Dialog>

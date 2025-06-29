@@ -43,6 +43,7 @@ import {
 } from "lucide-react"
 import { formatTime } from "@/lib/utils"
 import { updateDoctor } from "@/lib/actions/doctors"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface Doctor {
   id: string
@@ -63,7 +64,17 @@ interface DoctorProfileClientProps {
 }
 
 export function DoctorProfileClient({ doctor }: DoctorProfileClientProps) {
-  const { user } = useSession()
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  
+  // Fetch current user
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
+  }, [])
+  
   // Mock data for demonstration
   const mockStats = {
     patients: 3000,

@@ -1,4 +1,3 @@
-// components/billing/invoice-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -20,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2, Calendar } from "lucide-react"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
 import { createInvoiceRecord } from "@/lib/actions/billing"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 const invoiceSchema = z.object({
   doctorName: z.string().min(1, "Doctor name is required"),
@@ -42,12 +42,14 @@ interface InvoiceFormProps {
   onSubmit: (data: InvoiceFormData) => void
   onCancel: () => void
   initialData?: Partial<InvoiceFormData>
+  currentUser?: any
 }
 
 export function InvoiceForm({
   onSubmit,
   onCancel,
   initialData,
+  currentUser
 }: InvoiceFormProps) {
   const [items, setItems] = useState([
     { service: "", quantity: 1, cost: 0, amount: 0 }
@@ -55,7 +57,7 @@ export function InvoiceForm({
   const [discountPercent, setDiscountPercent] = useState(0)
   const [invoiceFile, setInvoiceFile] = useState<{name: string, url: string} | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
+  const [user, setUser] = useState<any>(currentUser)
 
   const {
     register,
@@ -69,6 +71,17 @@ export function InvoiceForm({
       ...initialData,
       items: items
     },
+  })
+
+  // Fetch current user if not provided
+  useState(() => {
+    async function fetchUser() {
+      if (!currentUser) {
+        const fetchedUser = await getCurrentUser()
+        setUser(fetchedUser)
+      }
+    }
+    fetchUser()
   })
 
   // Mock data for dropdowns

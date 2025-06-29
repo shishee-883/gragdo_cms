@@ -1,4 +1,3 @@
-// components/admin/staffs/staff-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -43,17 +42,18 @@ interface StaffFormProps {
   onSubmit: (data: StaffFormData) => void
   onCancel: () => void
   initialData?: Partial<StaffFormData>
+  currentUser: any
 }
 
 export function StaffForm({
   onSubmit,
   onCancel,
   initialData,
+  currentUser
 }: StaffFormProps) {
   const [profileImage, setProfileImage] = useState<{name: string, url: string} | null>(null)
   const [documentFiles, setDocumentFiles] = useState<{name: string, url: string}[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
 
   const {
     register,
