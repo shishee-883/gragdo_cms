@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Calendar, Bell, ChevronDown, Crown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -29,6 +29,15 @@ interface HeaderProps {
 export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: HeaderProps) {
   const currentDate = new Date()
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchCurrentUser()
+  }, [])
 
   const handleLogout = async () => {
     await logout()
@@ -101,7 +110,7 @@ export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: Heade
               </Avatar>
               <div className="ml-2 md:ml-3 flex-1 min-w-0">
                 <p className="text-sm md:text-lg text-black font-sf-pro font-semibold truncate">
-                  {clinicName}
+                  {currentUser?.name || clinicName}
                 </p>
                 <p className="text-xs md:text-sm text-black font-sf-pro truncate">
                   {location}

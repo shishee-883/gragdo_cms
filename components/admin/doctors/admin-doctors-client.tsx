@@ -25,6 +25,7 @@ import {
 import { Plus, Search, PenSquare, Trash2, Eye } from "lucide-react"
 import { deleteDoctor } from "@/lib/actions/doctors"
 import { DoctorForm } from "./doctor-form"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface Doctor {
   id: string
@@ -67,6 +68,16 @@ export function AdminDoctorsClient({ initialDoctors }: AdminDoctorsClientProps) 
   const [currentPage, setCurrentPage] = useState(1)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingDoctor, setEditingDoctor] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  useEffect(() => {
+    // Fetch current user
+    async function fetchUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     const filtered = doctors.filter((doctor) =>
@@ -147,6 +158,7 @@ export function AdminDoctorsClient({ initialDoctors }: AdminDoctorsClientProps) 
                 setIsFormOpen(false)
                 setEditingDoctor(null)
               }}
+              currentUser={currentUser}
             />
           </DialogContent>
         </Dialog>

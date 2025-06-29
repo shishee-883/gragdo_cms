@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-
+import { getCurrentUser } from "@/lib/actions/auth"
 import { createDoctor, updateDoctor } from "@/lib/actions/doctors"
 
 const doctorSchema = z.object({
@@ -46,17 +46,19 @@ interface DoctorFormProps {
   onSubmit: (data: DoctorFormData) => void
   onCancel: () => void
   initialData?: Partial<DoctorFormData>
+  currentUser?: any
 }
 
 export function DoctorForm({
   onSubmit,
   onCancel,
   initialData,
+  currentUser
 }: DoctorFormProps) {
   const [profileImage, setProfileImage] = useState<{name: string, url: string} | null>(null)
   const [certificateFiles, setCertificateFiles] = useState<{name: string, url: string}[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSession()
+  const [user, setUser] = useState<any>(currentUser)
 
   const {
     register,
@@ -87,6 +89,17 @@ export function DoctorForm({
     },
   })
 
+  // Fetch current user if not provided
+  useState(() => {
+    async function fetchUser() {
+      if (!user) {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
+      }
+    }
+    fetchUser()
+  })
+
   const handleProfileImageUpload = (url: string, file: File) => {
     setProfileImage({ name: file.name, url })
   }
@@ -103,7 +116,8 @@ export function DoctorForm({
     setIsSubmitting(true)
     
     try {
-      const clinicId = user?.clinicId
+      const currentUser = user || await getCurrentUser()
+      const clinicId = currentUser?.clinicId
       
       if (!clinicId) {
         throw new Error("No clinic ID available")
@@ -118,7 +132,7 @@ export function DoctorForm({
         experience: parseInt(data.experience) || undefined,
         consultationFee: parseInt(data.consultationFee) || undefined,
         clinicId,
-        createdById: user?.id || "",
+        createdById: currentUser?.id || "",
         profileImage: profileImage?.url,
         certificates: certificateFiles.map(file => file.url)
       }
