@@ -193,7 +193,6 @@ export const authApi = {
     email: string;
     phone: string;
     role: string;
-    clinicId?: string;
     password: string;
     address?: string;
     profile_image?: string;
@@ -206,7 +205,6 @@ export const authApi = {
       address: data.address || "",
       profile_image: data.profile_image || "",
       role: data.role,
-      clinic: data.clinicId,
       password: data.password,
     });
   },

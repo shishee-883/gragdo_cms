@@ -16,7 +16,6 @@ interface SignupData {
   email: string
   phone: string
   role: UserRole
-  clinicId?: string
   password: string
   address?: string
   profile_image?: string
