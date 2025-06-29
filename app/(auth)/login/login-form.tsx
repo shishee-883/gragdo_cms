@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { login, getCurrentUser } from "@/lib/actions/auth"
+import { login, getCurrentUser, resetPassword } from "@/lib/actions/auth"
 import { Eye, EyeOff } from "lucide-react"
 
 export function LoginForm() {
@@ -18,7 +18,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-
+  const [forget,setForget]=useState(false)
   // Check for saved credentials in localStorage
   useEffect(() => {
     const savedEmail = localStorage.getItem('digigo_email')
@@ -45,7 +45,7 @@ export function LoginForm() {
         email,
         password
       })
-      
+      console.log(result)
       if (result.success) {
         // Save credentials if remember me is checked
         if (rememberMe) {
@@ -54,10 +54,9 @@ export function LoginForm() {
           // Clear saved credentials if remember me is unchecked
           localStorage.removeItem('digigo_email')
         }
-        
         // Get current user to determine redirect path
         const currentUser = await getCurrentUser()
-        
+        console.log(currentUser)
         if (currentUser) {
           // Redirect based on role
           if (currentUser.role === "SUPER_ADMIN") {
@@ -80,11 +79,9 @@ export function LoginForm() {
             } else {
               router.push("/doctor/dashboard")
             }
-          } else {
-            router.push("/")
           }
         } else {
-          router.push("/")
+          router.push("/signup")
         }
       } else {
         setError(result.error || "Login failed")
@@ -96,6 +93,42 @@ export function LoginForm() {
       setIsLoading(false)
     }
   }
+    const handleforgetpassword = async (e: React.FormEvent) => {
+      e.preventDefault()
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/forgot-password/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body:JSON.stringify({email:email}),
+              credentials: 'include',
+            })
+            const result=await response.json();
+            if (response.ok) {
+
+              setForget(true)
+            } else {
+              setError(result.message || "Signup failed")
+            }
+          } catch (error) {
+            setError("An unexpected error occurred")
+            console.error(error)
+          } 
+    }
+    if(forget){
+      return (
+        <div className="text-center">
+          <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Account Created Successfully</h3>
+            <p>
+              Please Check your email for reset-Password URL.
+            </p>
+          </div>
+        </div>
+      )
+    }
+  
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -154,12 +187,13 @@ export function LoginForm() {
             Remember me
           </label>
         </div>
-        <Link
-          href="/forgot-password"
+        {/* <Link
+          href="/reset-password"
           className="text-sm font-medium text-[#7165e1] hover:underline"
         >
           Forgot Password?
-        </Link>
+        </Link> */}
+        <button type="button"  onClick={handleforgetpassword} className="text-sm font-medium leading-none">Forgot Password? </button>
       </div>
       
       <Button 

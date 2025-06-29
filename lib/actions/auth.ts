@@ -72,7 +72,7 @@ export async function forgotPassword(email: string) {
 
 export async function resetPassword(uidb64: string, token: string, newPassword: string, confirmPassword: string) {
   try {
-    const response = await fetch('/api/reset-password', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/reset-password/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export async function resetPassword(uidb64: string, token: string, newPassword: 
     const data = await response.json();
     
     return { 
-      success: response.ok && data.success, 
+      success: response.ok, 
       message: data.message || (response.ok ? 'Password reset successfully' : 'Failed to reset password'),
       error: !response.ok ? (data.error || 'Failed to reset password') : undefined
     }
@@ -126,14 +126,13 @@ export async function logout() {
 
 export async function getCurrentUser() {
   try {
-    const response = await fetch('/api/current-user-details', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/profile`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
+      credentials: 'include'
     });
-    
     if (!response.ok) {
       return null;
     }
@@ -141,7 +140,7 @@ export async function getCurrentUser() {
     const data = await response.json();
     
     if (data.success) {
-      return data.user;
+      return data.profile;
     }
     
     return null;
