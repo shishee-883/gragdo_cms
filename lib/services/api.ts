@@ -246,7 +246,7 @@ export const authApi = {
    * @returns Current user response
    */
   async getCurrentUser() {
-    return apiClient.get('/auth/me/');
+    return apiClient.get('/current-user-details/');
   },
   
   /**

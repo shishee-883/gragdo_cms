@@ -61,11 +61,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // Fetch current user from the server
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch('/api/current-user-details', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -101,6 +102,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       // Call the logout API endpoint
       await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       })
     } catch (error) {
       console.error('Error during logout:', error)
