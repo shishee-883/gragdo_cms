@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AppointmentStatus } from "@/lib/types"
 
 interface Appointment {
   id: string
@@ -71,6 +72,16 @@ export function AppointmentTable({ appointments, onEdit, onDelete }: Appointment
         return status
     }
   }
+
+  const safeFormatTime = (date: Date | null | undefined) => {
+    if (!date) return "N/A";
+    try {
+      return formatTime(date);
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "Invalid time";
+    }
+  };
 
   return (
     <Card className="rounded-[20px] border-none shadow-sm">
@@ -124,7 +135,7 @@ export function AppointmentTable({ appointments, onEdit, onDelete }: Appointment
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Time:</span>
-                    <span>{formatTime(appointment.appointmentDate)}</span>
+                    <span>{safeFormatTime(appointment.appointmentDate)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Concern:</span>
@@ -228,7 +239,7 @@ export function AppointmentTable({ appointments, onEdit, onDelete }: Appointment
                       {appointment.doctor.name}
                     </TableCell>
                     <TableCell className="text-base text-black font-sf-pro">
-                      {formatTime(appointment.appointmentDate)}
+                      {safeFormatTime(appointment.appointmentDate)}
                     </TableCell>
                     <TableCell>
                       <Badge

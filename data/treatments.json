@@ -1,0 +1,57 @@
+[
+  {
+    "id": "trt-001",
+    "name": "Complete Blood Count (CBC)",
+    "description": "Blood test that evaluates overall health and detects a wide range of disorders",
+    "cost": 500,
+    "duration": 15,
+    "clinicId": "cli-001",
+    "createdById": "adm-001",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-01-15T00:00:00.000Z"
+  },
+  {
+    "id": "trt-002",
+    "name": "Lipid Profile",
+    "description": "Blood test that measures lipids—fats and fatty substances used as a source of energy by the body",
+    "cost": 800,
+    "duration": 30,
+    "clinicId": "cli-001",
+    "createdById": "adm-001",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-01-15T00:00:00.000Z"
+  },
+  {
+    "id": "trt-003",
+    "name": "Thyroid Panel",
+    "description": "Blood test that checks how well your thyroid is working",
+    "cost": 1200,
+    "duration": 30,
+    "clinicId": "cli-001",
+    "createdById": "adm-001",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-01-15T00:00:00.000Z"
+  },
+  {
+    "id": "trt-004",
+    "name": "Electrocardiogram (ECG)",
+    "description": "Test that checks for problems with the electrical activity of your heart",
+    "cost": 1500,
+    "duration": 20,
+    "clinicId": "cli-002",
+    "createdById": "adm-002",
+    "createdAt": "2024-01-20T00:00:00.000Z",
+    "updatedAt": "2024-01-20T00:00:00.000Z"
+  },
+  {
+    "id": "trt-005",
+    "name": "Ultrasound",
+    "description": "Imaging technique that uses high-frequency sound waves to produce images of structures inside the body",
+    "cost": 2000,
+    "duration": 45,
+    "clinicId": "cli-002",
+    "createdById": "adm-002",
+    "createdAt": "2024-01-20T00:00:00.000Z",
+    "updatedAt": "2024-01-20T00:00:00.000Z"
+  }
+]

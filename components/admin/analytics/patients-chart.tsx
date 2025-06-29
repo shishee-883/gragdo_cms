@@ -16,44 +16,6 @@ export function PatientsChart() {
 
   const maxValue = 400
 
-  // Create smooth curve paths
-  const createSmoothPath = (points: number[], isTop: boolean = false) => {
-    if (points.length < 2) return ""
-    
-    const chartWidth = 280
-    const chartHeight = 192
-    const stepX = chartWidth / (points.length - 1)
-    
-    let path = `M 0 ${chartHeight - (points[0] / maxValue) * chartHeight}`
-    
-    for (let i = 1; i < points.length; i++) {
-      const x = i * stepX
-      const y = chartHeight - (points[i] / maxValue) * chartHeight
-      const prevX = (i - 1) * stepX
-      const prevY = chartHeight - (points[i - 1] / maxValue) * chartHeight
-      
-      const cpX1 = prevX + stepX * 0.4
-      const cpY1 = prevY
-      const cpX2 = x - stepX * 0.4
-      const cpY2 = y
-      
-      path += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${x} ${y}`
-    }
-    
-    // Close the path for area fill
-    if (isTop) {
-      path += ` L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`
-    } else {
-      path += ` L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`
-    }
-    
-    return path
-  }
-
-  const newPatientsData = chartData.map(d => d.newPatients)
-  const returnPatientsData = chartData.map(d => d.returnPatients)
-  const combinedData = chartData.map(d => d.newPatients + d.returnPatients)
-
   return (
     <Card className="rounded-[20px] border-none shadow-sm h-[400px]">
       <CardHeader className="pb-4">
@@ -84,9 +46,31 @@ export function PatientsChart() {
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
               
+              {/* Area paths for smooth curved lines */}
               {/* Return Patients Area (bottom layer) */}
               <path
-                d={createSmoothPath(returnPatientsData)}
+                d={`
+                  M 0 ${192 - (chartData[0].returnPatients / maxValue) * 192}
+                  C ${280/14} ${192 - (chartData[0].returnPatients / maxValue) * 192}, 
+                    ${280/14} ${192 - (chartData[1].returnPatients / maxValue) * 192}, 
+                    ${280/7} ${192 - (chartData[1].returnPatients / maxValue) * 192}
+                  C ${280/7 + 280/14} ${192 - (chartData[1].returnPatients / maxValue) * 192}, 
+                    ${280/7 + 280/14} ${192 - (chartData[2].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 2} ${192 - (chartData[2].returnPatients / maxValue) * 192}
+                  C ${280/7 * 2 + 280/14} ${192 - (chartData[2].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 2 + 280/14} ${192 - (chartData[3].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 3} ${192 - (chartData[3].returnPatients / maxValue) * 192}
+                  C ${280/7 * 3 + 280/14} ${192 - (chartData[3].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 3 + 280/14} ${192 - (chartData[4].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 4} ${192 - (chartData[4].returnPatients / maxValue) * 192}
+                  C ${280/7 * 4 + 280/14} ${192 - (chartData[4].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 4 + 280/14} ${192 - (chartData[5].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 5} ${192 - (chartData[5].returnPatients / maxValue) * 192}
+                  C ${280/7 * 5 + 280/14} ${192 - (chartData[5].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 5 + 280/14} ${192 - (chartData[6].returnPatients / maxValue) * 192}, 
+                    ${280/7 * 6} ${192 - (chartData[6].returnPatients / maxValue) * 192}
+                  L ${280} 192 L 0 192 Z
+                `}
                 fill="url(#returnGradient)"
                 stroke="#c4b5fd"
                 strokeWidth="2"
@@ -95,7 +79,28 @@ export function PatientsChart() {
               
               {/* New Patients Area (top layer) */}
               <path
-                d={createSmoothPath(combinedData, true)}
+                d={`
+                  M 0 ${192 - ((chartData[0].newPatients + chartData[0].returnPatients) / maxValue) * 192}
+                  C ${280/14} ${192 - ((chartData[0].newPatients + chartData[0].returnPatients) / maxValue) * 192}, 
+                    ${280/14} ${192 - ((chartData[1].newPatients + chartData[1].returnPatients) / maxValue) * 192}, 
+                    ${280/7} ${192 - ((chartData[1].newPatients + chartData[1].returnPatients) / maxValue) * 192}
+                  C ${280/7 + 280/14} ${192 - ((chartData[1].newPatients + chartData[1].returnPatients) / maxValue) * 192}, 
+                    ${280/7 + 280/14} ${192 - ((chartData[2].newPatients + chartData[2].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 2} ${192 - ((chartData[2].newPatients + chartData[2].returnPatients) / maxValue) * 192}
+                  C ${280/7 * 2 + 280/14} ${192 - ((chartData[2].newPatients + chartData[2].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 2 + 280/14} ${192 - ((chartData[3].newPatients + chartData[3].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 3} ${192 - ((chartData[3].newPatients + chartData[3].returnPatients) / maxValue) * 192}
+                  C ${280/7 * 3 + 280/14} ${192 - ((chartData[3].newPatients + chartData[3].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 3 + 280/14} ${192 - ((chartData[4].newPatients + chartData[4].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 4} ${192 - ((chartData[4].newPatients + chartData[4].returnPatients) / maxValue) * 192}
+                  C ${280/7 * 4 + 280/14} ${192 - ((chartData[4].newPatients + chartData[4].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 4 + 280/14} ${192 - ((chartData[5].newPatients + chartData[5].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 5} ${192 - ((chartData[5].newPatients + chartData[5].returnPatients) / maxValue) * 192}
+                  C ${280/7 * 5 + 280/14} ${192 - ((chartData[5].newPatients + chartData[5].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 5 + 280/14} ${192 - ((chartData[6].newPatients + chartData[6].returnPatients) / maxValue) * 192}, 
+                    ${280/7 * 6} ${192 - ((chartData[6].newPatients + chartData[6].returnPatients) / maxValue) * 192}
+                  L ${280} 192 L 0 192 Z
+                `}
                 fill="url(#newGradient)"
                 stroke="#7165e1"
                 strokeWidth="2"

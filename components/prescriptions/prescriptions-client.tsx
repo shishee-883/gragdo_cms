@@ -31,37 +31,15 @@ import {
 import { Plus, Search, PenSquare, Trash2, MoreHorizontal, Eye, FileText, Download } from "lucide-react"
 import { PrescriptionForm } from "./prescription-form"
 import { PrescriptionViewer } from "./prescription-viewer"
-
-interface Prescription {
-  id: string
-  patientId: string
-  patientName: string
-  doctorName: string
-  concern: string
-  gender: string
-  age: number
-  reports: {
-    id: string
-    name: string
-    type: string
-    url: string
-  }[]
-  prescriptions: {
-    id: string
-    name: string
-    type: string
-    url: string
-  }[]
-  createdAt: Date
-}
+import { EnhancedPrescription } from "@/lib/types"
 
 interface PrescriptionsClientProps {
-  initialPrescriptions: Prescription[]
+  initialPrescriptions: EnhancedPrescription[]
 }
 
 export function PrescriptionsClient({ initialPrescriptions }: PrescriptionsClientProps) {
-  const [prescriptions, setPrescriptions] = useState(initialPrescriptions)
-  const [filteredPrescriptions, setFilteredPrescriptions] = useState(initialPrescriptions)
+  const [prescriptions, setPrescriptions] = useState<EnhancedPrescription[]>(initialPrescriptions || [])
+  const [filteredPrescriptions, setFilteredPrescriptions] = useState<EnhancedPrescription[]>(initialPrescriptions || [])
   const [searchTerm, setSearchTerm] = useState("")
   const [recordsPerPage, setRecordsPerPage] = useState("10")
   const [currentPage, setCurrentPage] = useState(1)
@@ -75,15 +53,19 @@ export function PrescriptionsClient({ initialPrescriptions }: PrescriptionsClien
 
   useEffect(() => {
     // Filter prescriptions based on search term
-    const filtered = prescriptions.filter((prescription) =>
-      prescription.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prescription.patientId.includes(searchTerm) ||
-      prescription.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prescription.concern.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prescription.gender.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    setFilteredPrescriptions(filtered)
-    setCurrentPage(1) // Reset to first page when searching
+    if (prescriptions && prescriptions.length > 0) {
+      const filtered = prescriptions.filter((prescription) =>
+        prescription.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        prescription.patientId.includes(searchTerm) ||
+        prescription.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        prescription.concern.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        prescription.gender.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      setFilteredPrescriptions(filtered)
+      setCurrentPage(1) // Reset to first page when searching
+    } else {
+      setFilteredPrescriptions([])
+    }
   }, [searchTerm, prescriptions])
 
   const handleSubmit = async (data: any) => {
@@ -103,7 +85,7 @@ export function PrescriptionsClient({ initialPrescriptions }: PrescriptionsClien
     setPrescriptions(prev => prev.filter(p => p.id !== id))
   }
 
-  const handleViewReports = (prescription: Prescription) => {
+  const handleViewReports = (prescription: EnhancedPrescription) => {
     setViewingDocument({
       type: 'reports',
       documents: prescription.reports,
@@ -111,7 +93,7 @@ export function PrescriptionsClient({ initialPrescriptions }: PrescriptionsClien
     })
   }
 
-  const handleViewPrescriptions = (prescription: Prescription) => {
+  const handleViewPrescriptions = (prescription: EnhancedPrescription) => {
     setViewingDocument({
       type: 'prescriptions',
       documents: prescription.prescriptions,
@@ -351,7 +333,7 @@ export function PrescriptionsClient({ initialPrescriptions }: PrescriptionsClien
           {/* Results Summary and Pagination */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-6">
             <p className="text-sm text-gray-600">
-              Showing page {currentPage} of {totalPages}
+              Showing page {currentPage} of {totalPages || 1}
               {searchTerm && ` (filtered from ${prescriptions.length} total)`}
             </p>
             

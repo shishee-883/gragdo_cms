@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useRouter } from "next/navigation"
 
 interface Column {
   key: string
@@ -23,7 +24,7 @@ interface DataTableProps {
   columns: Column[]
   data: any[]
   actionLabel?: string
-  onAction?: () => void
+  actionUrl?: string
   renderCell?: (item: any, column: Column) => React.ReactNode
   maxHeight?: string
 }
@@ -33,10 +34,18 @@ export function DataTable({
   columns, 
   data, 
   actionLabel = "View All", 
-  onAction,
+  actionUrl,
   renderCell,
   maxHeight = "400px"
 }: DataTableProps) {
+  const router = useRouter()
+  
+  const handleAction = () => {
+    if (actionUrl) {
+      router.push(actionUrl)
+    }
+  }
+
   const defaultRenderCell = (item: any, column: Column) => {
     return item[column.key]
   }
@@ -51,7 +60,7 @@ export function DataTable({
           <Button 
             variant="link" 
             className="text-[#7165e1] text-sm font-sf-pro font-medium p-0"
-            onClick={onAction}
+            onClick={handleAction}
           >
             {actionLabel}
           </Button>

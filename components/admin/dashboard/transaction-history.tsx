@@ -1,4 +1,7 @@
+"use client"
+
 import { DataTable } from "@/components/shared/data-table"
+import { useState } from "react"
 
 interface Transaction {
   id: string
@@ -13,6 +16,8 @@ interface TransactionHistoryProps {
 }
 
 export function TransactionHistory({ transactions }: TransactionHistoryProps) {
+  const [transactionsList, setTransactionsList] = useState(transactions)
+
   // Transform data for custom layout (not using DataTable for this one due to unique layout)
   return (
     <div className="bg-white rounded-[20px] shadow-sm p-6">
@@ -26,7 +31,7 @@ export function TransactionHistory({ transactions }: TransactionHistoryProps) {
       </div>
 
       <div className="space-y-4">
-        {transactions.map((transaction) => (
+        {transactionsList.map((transaction) => (
           <div key={transaction.id} className="flex justify-between items-start">
             <div className="flex-1">
               <p className="font-sf-pro font-semibold text-black text-sm">

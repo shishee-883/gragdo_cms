@@ -1,3 +1,4 @@
+// components/billing/invoice-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -17,6 +18,9 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2, Calendar } from "lucide-react"
+import { FileUpload, FilePreview } from "@/components/shared/file-upload"
+import { useSession } from "@/components/auth/session-provider"
+import { createInvoiceRecord } from "@/lib/actions/billing"
 
 const invoiceSchema = z.object({
   doctorName: z.string().min(1, "Doctor name is required"),
@@ -50,13 +54,16 @@ export function InvoiceForm({
     { service: "", quantity: 1, cost: 0, amount: 0 }
   ])
   const [discountPercent, setDiscountPercent] = useState(0)
+  const [invoiceFile, setInvoiceFile] = useState<{name: string, url: string} | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user } = useSession()
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting: formSubmitting },
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -122,8 +129,49 @@ export function InvoiceForm({
     return calculateSubTotal() - calculateDiscount() + calculateTax()
   }
 
-  const handleFormSubmit = (data: InvoiceFormData) => {
-    onSubmit({ ...data, items, discountPercent })
+  const handleFileUpload = (url: string, file: File) => {
+    setInvoiceFile({ name: file.name, url })
+  }
+
+  const handleFormSubmit = async (data: InvoiceFormData) => {
+    setIsSubmitting(true)
+    
+    try {
+      const clinicId = user?.clinicId
+      
+      if (!clinicId) {
+        throw new Error("No clinic ID available")
+      }
+      
+      const invoiceData = {
+        patientId: mockPatients.find(p => p.name === data.patientName)?.id || "",
+        clinicId,
+        items: items.map(item => ({
+          description: item.service,
+          quantity: item.quantity,
+          unitPrice: item.cost,
+          type: "CONSULTATION", // Default type
+        })),
+        discount: calculateDiscount(),
+        tax: calculateTax(),
+        dueDate: data.dueDate,
+        notes: data.remarks,
+        createdById: user?.id || "",
+        document: invoiceFile?.url
+      }
+      
+      const result = await createInvoiceRecord(invoiceData)
+      
+      if (result.success) {
+        onSubmit({ ...data, items, discountPercent })
+      } else {
+        console.error("Error saving invoice:", result.error)
+      }
+    } catch (error) {
+      console.error("Error saving invoice:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -212,6 +260,37 @@ export function InvoiceForm({
                 <p className="text-xs text-red-500">{errors.dueDate.message}</p>
               )}
             </div>
+          </div>
+
+          {/* Invoice File Upload */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-black">
+              Upload Invoice Document
+            </Label>
+            <div className="border-2 border-dashed border-[#7165e1] rounded-lg p-6 text-center bg-[#f8f7ff]">
+              <FileUpload
+                onFileUpload={handleFileUpload}
+                folder="invoice-documents"
+                accept=".pdf,.jpg,.jpeg,.png"
+                multiple={false}
+                buttonText="Upload Invoice Document"
+                buttonVariant="ghost"
+                className="flex flex-col items-center"
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                Supported formats: PDF, JPG, PNG
+              </p>
+            </div>
+            
+            {/* Display uploaded file */}
+            {invoiceFile && (
+              <div className="mt-2">
+                <FilePreview
+                  file={invoiceFile}
+                  onRemove={() => setInvoiceFile(null)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Remarks/Notes */}
@@ -350,17 +429,17 @@ export function InvoiceForm({
               type="button"
               variant="outline"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={isSubmitting || formSubmitting}
               className="w-full sm:w-auto h-12 px-8 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || formSubmitting}
               className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1] text-white font-medium"
             >
-              {isSubmitting ? "Creating..." : "Create Invoice"}
+              {isSubmitting || formSubmitting ? "Creating..." : "Create Invoice"}
             </Button>
           </div>
         </form>

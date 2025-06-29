@@ -1,0 +1,80 @@
+[
+  {
+    "id": "bed-001",
+    "bedId": "BED123456",
+    "bedNumber": 1,
+    "roomId": "room-001",
+    "status": "OCCUPIED",
+    "patientId": "pat-001",
+    "admissionDate": "2025-06-01T00:00:00.000Z",
+    "dischargeDate": "2025-06-07T00:00:00.000Z",
+    "clinicId": "cli-001",
+    "createdById": "stf-001",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-06-01T00:00:00.000Z"
+  },
+  {
+    "id": "bed-002",
+    "bedId": "BED234567",
+    "bedNumber": 2,
+    "roomId": "room-001",
+    "status": "AVAILABLE",
+    "clinicId": "cli-001",
+    "createdById": "stf-001",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "bed-003",
+    "bedId": "BED345678",
+    "bedNumber": 3,
+    "roomId": "room-001",
+    "status": "AVAILABLE",
+    "clinicId": "cli-001",
+    "createdById": "stf-001",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "bed-004",
+    "bedId": "BED456789",
+    "bedNumber": 1,
+    "roomId": "room-002",
+    "status": "OCCUPIED",
+    "patientId": "pat-004",
+    "admissionDate": "2025-06-02T00:00:00.000Z",
+    "dischargeDate": "2025-06-09T00:00:00.000Z",
+    "clinicId": "cli-001",
+    "createdById": "stf-001",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-06-02T00:00:00.000Z"
+  },
+  {
+    "id": "bed-005",
+    "bedId": "BED567890",
+    "bedNumber": 2,
+    "roomId": "room-002",
+    "status": "OCCUPIED",
+    "patientId": "pat-005",
+    "admissionDate": "2025-06-03T00:00:00.000Z",
+    "dischargeDate": "2025-06-10T00:00:00.000Z",
+    "clinicId": "cli-001",
+    "createdById": "stf-001",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-06-03T00:00:00.000Z"
+  },
+  {
+    "id": "bed-006",
+    "bedId": "BED678901",
+    "bedNumber": 1,
+    "roomId": "room-004",
+    "status": "OCCUPIED",
+    "patientId": "pat-006",
+    "admissionDate": "2025-06-05T00:00:00.000Z",
+    "dischargeDate": "2025-06-12T00:00:00.000Z",
+    "clinicId": "cli-002",
+    "createdById": "stf-002",
+    "createdAt": "2024-01-02T00:00:00.000Z",
+    "updatedAt": "2025-06-05T00:00:00.000Z"
+  }
+]

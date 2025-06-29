@@ -1,0 +1,57 @@
+[
+  {
+    "id": "cli-001",
+    "name": "Vishnu Clinic",
+    "address": "123 Health Street, Medical District, Hyderabad",
+    "phone": "+91-9876543210",
+    "email": "info@vishnuclinic.com",
+    "description": "A modern healthcare facility providing comprehensive medical services",
+    "createdById": "sa-001",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "cli-002",
+    "name": "City Health Center",
+    "address": "456 Medical Avenue, Downtown, Bangalore",
+    "phone": "+91-9876543211",
+    "email": "info@cityhealthcenter.com",
+    "description": "Providing quality healthcare services to urban communities",
+    "createdById": "sa-001",
+    "createdAt": "2024-01-02T00:00:00.000Z",
+    "updatedAt": "2024-01-02T00:00:00.000Z"
+  },
+  {
+    "id": "cli-003",
+    "name": "Rural Medical Clinic",
+    "address": "789 Village Road, Countryside, Chennai",
+    "phone": "+91-9876543212",
+    "email": "info@ruralmedical.com",
+    "description": "Bringing healthcare services to rural communities",
+    "createdById": "sa-001",
+    "createdAt": "2024-01-03T00:00:00.000Z",
+    "updatedAt": "2024-01-03T00:00:00.000Z"
+  },
+  {
+    "id": "cli-004",
+    "name": "Family Care Center",
+    "address": "321 Family Street, Residential Area, Mumbai",
+    "phone": "+91-9876543213",
+    "email": "info@familycare.com",
+    "description": "Comprehensive healthcare for the entire family",
+    "createdById": "sa-001",
+    "createdAt": "2024-01-04T00:00:00.000Z",
+    "updatedAt": "2024-01-04T00:00:00.000Z"
+  },
+  {
+    "id": "cli-005",
+    "name": "Specialty Medical Center",
+    "address": "654 Specialist Road, Medical Hub, Delhi",
+    "phone": "+91-9876543214",
+    "email": "info@specialtymedical.com",
+    "description": "Advanced care for specialized medical conditions",
+    "createdById": "sa-001",
+    "createdAt": "2024-01-05T00:00:00.000Z",
+    "updatedAt": "2024-01-05T00:00:00.000Z"
+  }
+]

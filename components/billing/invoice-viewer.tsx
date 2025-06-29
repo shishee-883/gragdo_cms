@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -63,6 +64,10 @@ export function InvoiceViewer({ isOpen, onClose, invoice }: InvoiceViewerProps) 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="sr-only">Invoice {invoice.invoiceNo}</DialogTitle>
+        </DialogHeader>
+        
         {/* Purple Header */}
         <div className="bg-[#7165e1] h-16 w-full rounded-t-lg"></div>
         

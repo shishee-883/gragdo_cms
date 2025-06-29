@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -28,14 +28,21 @@ import { InvoiceViewer } from "@/components/billing/invoice-viewer"
 
 interface Transaction {
   id: string
-  doctorName: string
-  testName: string
-  date: string
+  doctorName?: string
+  testName?: string
+  date?: string
   amount: number
   status?: 'Paid' | 'Pending' | 'Overdue'
   invoiceNo?: string
   patientName?: string
   phone?: string
+  type?: string
+  description?: string
+  paymentStatus?: string
+  appointmentId?: string
+  clinicId?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface AdminTransactionsClientProps {
@@ -50,11 +57,11 @@ export function AdminTransactionsClient({ initialTransactions }: AdminTransactio
     invoiceNo: `#${123456 + index}`,
     patientName: ['K. Vijay', 'P. Sandeep', 'Ch. Asritha', 'P. Ravi', 'A. Srikanth'][Math.floor(Math.random() * 5)],
     phone: '9876543210',
-    createdDate: transaction.date,
-    dueDate: transaction.date,
+    createdDate: transaction.date || transaction.createdAt || new Date().toISOString().split('T')[0],
+    dueDate: transaction.date || transaction.createdAt || new Date().toISOString().split('T')[0],
     items: [
       {
-        description: transaction.testName,
+        description: transaction.testName || transaction.description || 'Service',
         quantity: 1,
         rate: transaction.amount,
         amount: transaction.amount
@@ -72,11 +79,12 @@ export function AdminTransactionsClient({ initialTransactions }: AdminTransactio
 
   useEffect(() => {
     const filtered = transactions.filter((transaction) =>
-      transaction.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.testName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.invoiceNo?.includes(searchTerm) ||
-      transaction.status?.toLowerCase().includes(searchTerm.toLowerCase())
+      (transaction.doctorName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (transaction.testName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (transaction.patientName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (transaction.invoiceNo || '').includes(searchTerm) ||
+      (transaction.status?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (transaction.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     )
     setFilteredTransactions(filtered)
     setCurrentPage(1)
@@ -145,6 +153,9 @@ export function AdminTransactionsClient({ initialTransactions }: AdminTransactio
             </Button>
           </DialogTrigger>
           <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create Invoice</DialogTitle>
+            </DialogHeader>
             <InvoiceForm
               onSubmit={handleSubmit}
               onCancel={() => setIsFormOpen(false)}
@@ -214,15 +225,15 @@ export function AdminTransactionsClient({ initialTransactions }: AdminTransactio
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Doctor:</span>
-                      <span>{transaction.doctorName}</span>
+                      <span>{transaction.doctorName || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Service:</span>
-                      <span>{transaction.testName}</span>
+                      <span>{transaction.testName || transaction.description || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Date:</span>
-                      <span>{transaction.date}</span>
+                      <span>{transaction.date || transaction.createdAt || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Amount:</span>
@@ -279,13 +290,13 @@ export function AdminTransactionsClient({ initialTransactions }: AdminTransactio
                         {transaction.patientName}
                       </TableCell>
                       <TableCell className="text-base text-black font-sf-pro">
-                        {transaction.doctorName}
+                        {transaction.doctorName || 'N/A'}
                       </TableCell>
                       <TableCell className="text-base text-black font-sf-pro">
-                        {transaction.testName}
+                        {transaction.testName || transaction.description || 'N/A'}
                       </TableCell>
                       <TableCell className="text-base text-black font-sf-pro">
-                        {transaction.date}
+                        {transaction.date || transaction.createdAt || 'N/A'}
                       </TableCell>
                       <TableCell className="text-base text-black font-sf-pro">
                         ₹ {transaction.amount}

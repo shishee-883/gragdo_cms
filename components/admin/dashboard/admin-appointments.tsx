@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import { DataTable } from "@/components/shared/data-table"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 interface Appointment {
   id: string
@@ -19,8 +20,11 @@ interface AdminAppointmentsProps {
 }
 
 export function AdminAppointments({ appointments }: AdminAppointmentsProps) {
+  const [appointmentList, setAppointmentList] = useState(appointments);
+
   const handleAction = (appointmentId: string, action: 'Accept' | 'Decline') => {
-    console.log(`${action} appointment:`, appointmentId)
+    console.log(`${action} appointment:`, appointmentId);
+    // In a real app, you would call an API to update the appointment status
   }
 
   const columns = [
@@ -62,7 +66,7 @@ export function AdminAppointments({ appointments }: AdminAppointmentsProps) {
     <DataTable
       title="Appointments"
       columns={columns}
-      data={appointments}
+      data={appointmentList}
       actionLabel="View All"
       onAction={() => console.log('View all appointments')}
       renderCell={renderCell}

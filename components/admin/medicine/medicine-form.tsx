@@ -1,3 +1,4 @@
+// components/admin/medicine/medicine-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -16,6 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Trash2 } from "lucide-react"
+import { FileUpload, FilePreview } from "@/components/shared/file-upload"
+import { useSession } from "@/components/auth/session-provider"
+import { createMedicineRecord, updateMedicineRecord } from "@/lib/actions/medicines"
 
 const medicineSchema = z.object({
   name: z.string().min(1, "Medicine name is required"),
@@ -26,6 +30,8 @@ const medicineSchema = z.object({
   manufacturedDate: z.string().min(1, "Manufactured date is required"),
   expiryDate: z.string().min(1, "Expiry date is required"),
   price: z.string().min(1, "Price is required"),
+  stock: z.string().min(1, "Stock is required"),
+  reorderLevel: z.string().optional(),
 })
 
 type MedicineFormData = z.infer<typeof medicineSchema>
@@ -66,6 +72,9 @@ export function MedicineForm({
       price: initialData?.price || "100"
     }
   ])
+  const [medicineImages, setMedicineImages] = useState<{id: number, name: string, url: string}[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user } = useSession()
 
   const addNewRow = () => {
     setMedicineRows([...medicineRows, {
@@ -84,6 +93,8 @@ export function MedicineForm({
   const removeRow = (id: number) => {
     if (medicineRows.length > 1) {
       setMedicineRows(medicineRows.filter(row => row.id !== id))
+      // Also remove any associated images
+      setMedicineImages(prev => prev.filter(img => img.id !== id))
     }
   }
 
@@ -93,20 +104,123 @@ export function MedicineForm({
     ))
   }
 
-  const handleFormSubmit = () => {
-    // Process all rows and submit
-    console.log("Submitting medicines:", medicineRows)
-    onSubmit(medicineRows[0])
+  const handleImageUpload = (url: string, file: File) => {
+    // Associate the image with the first medicine row by default
+    setMedicineImages(prev => [...prev, { id: medicineRows[0].id, name: file.name, url }])
+  }
+
+  const removeImage = (index: number) => {
+    setMedicineImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleFormSubmit = async () => {
+    setIsSubmitting(true)
+    
+    try {
+      const clinicId = user?.clinicId
+      
+      if (!clinicId) {
+        throw new Error("No clinic ID available")
+      }
+      
+      // Process all rows and submit
+      for (const row of medicineRows) {
+        // Find any images associated with this medicine
+        const images = medicineImages.filter(img => img.id === row.id).map(img => img.url)
+        
+        const medicineData = {
+          name: row.name,
+          manufacturer: row.manufacturer,
+          batchNumber: row.batchNumber,
+          type: row.type,
+          dosage: row.dosage,
+          manufacturedDate: row.manufacturedDate,
+          expiryDate: row.expiryDate,
+          price: parseFloat(row.price),
+          stock: 100, // Default value
+          reorderLevel: 10, // Default value
+          clinicId,
+          createdById: user?.id || "",
+          imageUrls: images
+        }
+        
+        let result
+        
+        if (initialData && initialData.id) {
+          // Update existing medicine
+          result = await updateMedicineRecord(initialData.id, medicineData)
+        } else {
+          // Create new medicine
+          result = await createMedicineRecord(medicineData)
+        }
+        
+        if (!result.success) {
+          console.error(`Failed to save medicine ${row.name}:`, result.error)
+        }
+      }
+      
+      // Call the onSubmit callback with the first row's data
+      onSubmit(medicineRows[0])
+    } catch (error) {
+      console.error("Error saving medicines:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <Card className="w-full max-w-6xl mx-auto border-none shadow-none">
       <CardHeader className="pb-6">
         <CardTitle className="text-2xl md:text-3xl font-sf-pro font-semibold text-black">
-          Add Medicine
+          {initialData ? "Edit Medicine" : "Add Medicine"}
         </CardTitle>
       </CardHeader>
       <CardContent className="px-6 md:px-8">
+        {/* Medicine Images */}
+        <div className="mb-6">
+          <Label className="text-sm font-medium text-black mb-2 block">
+            Medicine Images
+          </Label>
+          <div className="border-2 border-dashed border-[#7165e1] rounded-lg p-6 text-center bg-[#f8f7ff]">
+            <FileUpload
+              onFileUpload={handleImageUpload}
+              folder="medicine-images"
+              accept="image/*"
+              multiple={true}
+              buttonText="Upload Medicine Images"
+              buttonVariant="ghost"
+              className="flex flex-col items-center"
+            />
+            <p className="text-sm text-gray-500 mt-2">
+              Supported formats: JPG, PNG, WEBP
+            </p>
+          </div>
+          
+          {/* Display uploaded images */}
+          {medicineImages.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {medicineImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <img 
+                    src={image.url} 
+                    alt={image.name} 
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Table Header */}
         <div className="grid grid-cols-9 gap-2 bg-[#f4f3ff] p-4 rounded-t-lg mb-2">
           <div className="text-sm font-medium text-gray-700">Medicine name</div>
@@ -237,6 +351,7 @@ export function MedicineForm({
             type="button"
             variant="outline"
             onClick={onCancel}
+            disabled={isSubmitting}
             className="w-full sm:w-auto h-12 px-8 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             Cancel
@@ -244,9 +359,10 @@ export function MedicineForm({
           <Button
             type="button"
             onClick={handleFormSubmit}
+            disabled={isSubmitting}
             className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1] text-white font-medium"
           >
-            Create
+            {isSubmitting ? "Saving..." : initialData ? "Update" : "Create"}
           </Button>
         </div>
       </CardContent>

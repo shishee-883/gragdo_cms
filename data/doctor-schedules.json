@@ -1,0 +1,152 @@
+[
+  {
+    "id": "1",
+    "doctorId": "1",
+    "dayOfWeek": 1,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "doctorId": "1",
+    "dayOfWeek": 2,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "doctorId": "1",
+    "dayOfWeek": 3,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "4",
+    "doctorId": "1",
+    "dayOfWeek": 4,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "5",
+    "doctorId": "1",
+    "dayOfWeek": 5,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "6",
+    "doctorId": "2",
+    "dayOfWeek": 1,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "7",
+    "doctorId": "2",
+    "dayOfWeek": 2,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "8",
+    "doctorId": "2",
+    "dayOfWeek": 3,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "9",
+    "doctorId": "2",
+    "dayOfWeek": 4,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "10",
+    "doctorId": "2",
+    "dayOfWeek": 5,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "11",
+    "doctorId": "3",
+    "dayOfWeek": 1,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "12",
+    "doctorId": "3",
+    "dayOfWeek": 2,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "13",
+    "doctorId": "3",
+    "dayOfWeek": 3,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "14",
+    "doctorId": "3",
+    "dayOfWeek": 4,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "15",
+    "doctorId": "3",
+    "dayOfWeek": 5,
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

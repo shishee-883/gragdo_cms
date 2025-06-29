@@ -1,3 +1,4 @@
+// components/prescriptions/prescription-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -16,7 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Upload } from "lucide-react"
+import { FileUpload, FilePreview } from "@/components/shared/file-upload"
+import { useSession } from "@/components/auth/session-provider"
+import { createPrescriptionRecord } from "@/lib/actions/prescriptions"
 
 const prescriptionSchema = z.object({
   patientId: z.string().min(1, "Patient is required"),
@@ -41,26 +44,75 @@ export function PrescriptionForm({
   onCancel,
   initialData,
 }: PrescriptionFormProps) {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<{name: string, url: string}[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user } = useSession()
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<PrescriptionFormData>({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: initialData,
   })
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    setSelectedFiles(prev => [...prev, ...files])
+  const handleFileUpload = (url: string, file: File) => {
+    setUploadedFiles(prev => [...prev, { name: file.name, url }])
   }
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleFormSubmit = async (data: PrescriptionFormData) => {
+    setIsSubmitting(true)
+    
+    try {
+      const clinicId = user?.clinicId
+      
+      if (!clinicId) {
+        throw new Error("No clinic ID available")
+      }
+      
+      // Get the first uploaded file URL if available
+      const documentUrl = uploadedFiles.length > 0 ? uploadedFiles[0].url : undefined
+      
+      const prescriptionData = {
+        patientId: data.patientId,
+        doctorId: data.doctorId,
+        clinicId,
+        appointmentId: "apt-001", // This should be dynamic in a real app
+        diagnosis: data.diagnosis,
+        medications: [
+          {
+            name: "Medication from form",
+            dosage: "As prescribed",
+            frequency: "As needed",
+            duration: "As directed",
+            quantity: 1
+          }
+        ],
+        instructions: data.instructions,
+        followUpDate: data.followUpDate,
+        document: documentUrl,
+        createdById: user?.id || ""
+      }
+      
+      const result = await createPrescriptionRecord(prescriptionData)
+      
+      if (result.success) {
+        onSubmit(data)
+      } else {
+        console.error("Error saving prescription:", result.error)
+      }
+    } catch (error) {
+      console.error("Error saving prescription:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Mock data for dropdowns
@@ -80,11 +132,11 @@ export function PrescriptionForm({
     <Card className="w-full max-w-6xl mx-auto border-none shadow-none">
       <CardHeader className="pb-6">
         <CardTitle className="text-2xl md:text-3xl font-sf-pro font-semibold text-black">
-          Add Prescription
+          {initialData?.patientId ? "Edit Prescription" : "Add Prescription"}
         </CardTitle>
       </CardHeader>
       <CardContent className="px-6 md:px-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Row 1: Patient, Doctor */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -213,43 +265,31 @@ export function PrescriptionForm({
             </Label>
             
             <div className="border-2 border-dashed border-[#7165e1] rounded-lg p-8 text-center bg-[#f8f7ff]">
-              <input
-                type="file"
-                multiple
+              <FileUpload
+                onFileUpload={handleFileUpload}
+                folder="prescription-documents"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="prescription-upload"
+                multiple={true}
+                buttonText="Click here to upload prescription files"
+                buttonVariant="ghost"
+                className="flex flex-col items-center"
               />
-              <label htmlFor="prescription-upload" className="cursor-pointer">
-                <Upload className="w-8 h-8 text-[#7165e1] mx-auto mb-2" />
-                <p className="text-[#7165e1] font-medium">
-                  Click here to upload prescription files
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Supported formats: PDF, JPG, PNG, DOC, DOCX
-                </p>
-              </label>
+              <p className="text-sm text-gray-500 mt-2">
+                Supported formats: PDF, JPG, PNG, DOC, DOCX
+              </p>
             </div>
 
             {/* Display uploaded files */}
-            {selectedFiles.length > 0 && (
+            {uploadedFiles.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm font-medium text-black">Uploaded Files:</p>
                 <div className="space-y-2">
-                  {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                      <span className="text-sm text-gray-700">{file.name}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        Remove
-                      </Button>
-                    </div>
+                  {uploadedFiles.map((file, index) => (
+                    <FilePreview
+                      key={index}
+                      file={file}
+                      onRemove={() => removeFile(index)}
+                    />
                   ))}
                 </div>
               </div>
@@ -272,7 +312,7 @@ export function PrescriptionForm({
               disabled={isSubmitting}
               className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1] text-white font-medium"
             >
-              {isSubmitting ? "Creating..." : "Create Prescription"}
+              {isSubmitting ? "Saving..." : initialData?.patientId ? "Update Prescription" : "Create Prescription"}
             </Button>
           </div>
         </form>

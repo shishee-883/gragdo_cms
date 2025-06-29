@@ -1,74 +1,76 @@
-import { prisma } from "@/lib/prisma"
+'use server'
 
-export async function getUserProfile(userId?: string) {
+import { UserRole } from '@/lib/types';
+import { profileApi } from '@/lib/services/api';
+
+export async function getUserProfile(userId?: string, token?: string) {
   try {
-    // For demo purposes, we'll get the first user
-    // In a real app, you'd get the current authenticated user
-    const user = await prisma.user.findFirst({
-      include: {
-        clinic: true
-      }
-    })
-
-    if (!user) {
-      throw new Error('User not found')
+    const response = await profileApi.getProfile(userId);
+    
+    if (response.success) {
+      return response.profile;
     }
-
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      address: undefined, // Add address field to User model if needed
-      bio: undefined, // Add bio field to User model if needed
-      profileImage: undefined, // Add profileImage field to User model if needed
-      clinic: user.clinic ? {
-        name: user.clinic.name,
-        address: user.clinic.address
-      } : undefined,
-      createdAt: user.createdAt
+    
+    // For demo purposes, return a default profile if not found
+    if (!userId) {
+      return {
+        id: 'default-user',
+        name: 'Demo User',
+        email: 'demo@digigo.com',
+        phone: '+91-9999999999',
+        role: UserRole.STAFF,
+        clinic: {
+          id: 'cli-001',
+          name: 'Vishnu Clinic',
+          address: '123 Health Street, Medical District, Hyderabad'
+        },
+        createdAt: new Date()
+      };
     }
+    
+    return null;
   } catch (error) {
-    console.error('Error fetching user profile:', error)
-    // Return mock data for demo
-    return {
-      id: '1',
-      name: 'Clinic Admin',
-      email: 'admin@vishnuclinic.com',
-      phone: '+91-9876543210',
-      role: 'ADMIN',
-      address: '123 Health Street, Medical District',
-      bio: 'Experienced healthcare administrator with over 10 years in clinic management.',
-      profileImage: undefined,
-      clinic: {
-        name: 'Vishnu Clinic',
-        address: '123 Health Street, Medical District'
-      },
-      createdAt: new Date('2024-01-01')
+    console.error('Error fetching user profile:', error);
+    
+    // For demo purposes, return a default profile on error
+    if (!userId) {
+      return {
+        id: 'default-user',
+        name: 'Demo User',
+        email: 'demo@digigo.com',
+        phone: '+91-9999999999',
+        role: UserRole.STAFF,
+        clinic: {
+          id: 'cli-001',
+          name: 'Vishnu Clinic',
+          address: '123 Health Street, Medical District, Hyderabad'
+        },
+        createdAt: new Date()
+      };
     }
+    
+    return null;
   }
 }
 
 export async function updateUserProfile(userId: string, data: {
-  name?: string
-  email?: string
-  phone?: string
-  address?: string
-  bio?: string
-  profileImage?: string
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  bio?: string;
+  profileImage?: string;
 }) {
   try {
-    // In a real app, you would update the user in the database
-    // For now, we'll just simulate a successful update
-    console.log('Updating user profile:', userId, data)
+    const response = await profileApi.updateProfile(userId, data);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    return { success: true }
+    if (response.success) {
+      return { success: true };
+    } else {
+      return { success: false, error: response.error || 'Failed to update profile' };
+    }
   } catch (error) {
-    console.error('Error updating user profile:', error)
-    return { success: false, error: 'Failed to update profile' }
+    console.error('Error updating user profile:', error);
+    return { success: false, error: 'Failed to update profile' };
   }
 }

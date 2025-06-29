@@ -5,10 +5,21 @@ import { Search, Calendar, Bell, ChevronDown, Crown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { formatDate } from "@/lib/utils"
 import { PlanDetailsModal } from "@/components/layout/plan-details-modal"
 import Link from "next/link"
+import { useSession } from "@/components/auth/session-provider"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { User, Settings, LogOut } from "lucide-react"
 
 interface HeaderProps {
   clinicName?: string
@@ -18,6 +29,11 @@ interface HeaderProps {
 export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: HeaderProps) {
   const currentDate = new Date()
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
+  const { user, logout } = useSession()
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <header className="h-[60px] md:h-[80px] bg-white shadow-[0px_1px_30px_#7165e114] flex items-center px-3 md:px-[20px] justify-between">
@@ -50,6 +66,9 @@ export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: Heade
             </Button>
           </DialogTrigger>
           <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+            <DialogHeader>
+              <DialogTitle>Plan Details</DialogTitle>
+            </DialogHeader>
             <PlanDetailsModal onClose={() => setIsPlanModalOpen(false)} />
           </DialogContent>
         </Dialog>
@@ -67,26 +86,51 @@ export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: Heade
           <Bell className="w-5 h-5 md:w-[26px] md:h-[26px] text-[#7165e1]" />
         </div>
 
-        {/* Profile - Now clickable */}
-        <Link href="/profile">
-          <div className="w-[180px] sm:w-[220px] md:w-[280px] h-[40px] md:h-[50px] bg-[#f4f3ff] rounded-[16px] flex items-center px-2 md:px-3 hover:bg-[#eeebff] transition-colors cursor-pointer">
-            <Avatar className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] rounded-xl flex-shrink-0">
-              <AvatarImage src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2" />
-              <AvatarFallback className="bg-[#7165e1] text-white font-sf-pro font-semibold text-sm md:text-base rounded-xl">
-                {clinicName.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="ml-2 md:ml-3 flex-1 min-w-0">
-              <p className="text-sm md:text-lg text-black font-sf-pro font-semibold truncate">
-                {clinicName}
-              </p>
-              <p className="text-xs md:text-sm text-black font-sf-pro truncate">
-                {location}
-              </p>
+        {/* Profile Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="w-[180px] sm:w-[220px] md:w-[280px] h-[40px] md:h-[50px] bg-[#f4f3ff] rounded-[16px] flex items-center px-2 md:px-3 hover:bg-[#eeebff] transition-colors cursor-pointer">
+              <Avatar className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] rounded-xl flex-shrink-0">
+                <AvatarImage src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2" />
+                <AvatarFallback className="bg-[#7165e1] text-white font-sf-pro font-semibold text-sm md:text-base rounded-xl">
+                  {user?.name?.charAt(0) || clinicName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="ml-2 md:ml-3 flex-1 min-w-0">
+                <p className="text-sm md:text-lg text-black font-sf-pro font-semibold truncate">
+                  {user?.name || clinicName}
+                </p>
+                <p className="text-xs md:text-sm text-black font-sf-pro truncate">
+                  {location}
+                </p>
+              </div>
+              <ChevronDown className="ml-auto w-[12px] h-[6px] md:w-[15px] md:h-[8px] flex-shrink-0" />
             </div>
-            <ChevronDown className="ml-auto w-[12px] h-[6px] md:w-[15px] md:h-[8px] flex-shrink-0" />
-          </div>
-        </Link>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[220px]" align="end">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/change-password" className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Change Password</span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )

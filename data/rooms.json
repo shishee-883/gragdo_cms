@@ -1,0 +1,67 @@
+[
+  {
+    "id": "room-001",
+    "roomId": "ROOM123456",
+    "roomNumber": "101",
+    "roomType": "PRIVATE",
+    "floor": 1,
+    "totalBeds": 3,
+    "clinicId": "cli-001",
+    "createdById": "adm-001",
+    "isActive": 1,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "room-002",
+    "roomId": "ROOM234567",
+    "roomNumber": "102",
+    "roomType": "GENERAL",
+    "floor": 1,
+    "totalBeds": 4,
+    "clinicId": "cli-001",
+    "createdById": "adm-001",
+    "isActive": 1,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "room-003",
+    "roomId": "ROOM345678",
+    "roomNumber": "103",
+    "roomType": "PRIVATE",
+    "floor": 1,
+    "totalBeds": 1,
+    "clinicId": "cli-001",
+    "createdById": "adm-001",
+    "isActive": 1,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "room-004",
+    "roomId": "ROOM456789",
+    "roomNumber": "201",
+    "roomType": "PRIVATE",
+    "floor": 2,
+    "totalBeds": 3,
+    "clinicId": "cli-002",
+    "createdById": "adm-002",
+    "isActive": 1,
+    "createdAt": "2024-01-02T00:00:00.000Z",
+    "updatedAt": "2024-01-02T00:00:00.000Z"
+  },
+  {
+    "id": "room-005",
+    "roomId": "ROOM567890",
+    "roomNumber": "202",
+    "roomType": "GENERAL",
+    "floor": 2,
+    "totalBeds": 4,
+    "clinicId": "cli-002",
+    "createdById": "adm-002",
+    "isActive": 1,
+    "createdAt": "2024-01-02T00:00:00.000Z",
+    "updatedAt": "2024-01-02T00:00:00.000Z"
+  }
+]

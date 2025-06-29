@@ -18,7 +18,7 @@ export function StaffList({ staff }: StaffListProps) {
       title="Staff List"
       users={staff}
       actionLabel="Manage"
-      // onAction={() => console.log('Manage staff')}
+      actionUrl="/admin/staffs"
     />
   )
 }

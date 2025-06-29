@@ -42,6 +42,8 @@ import {
   Mail
 } from "lucide-react"
 import { formatTime } from "@/lib/utils"
+import { updateDoctor } from "@/lib/actions/doctors"
+import { useSession } from "@/components/auth/session-provider"
 
 interface Doctor {
   id: string
@@ -62,6 +64,7 @@ interface DoctorProfileClientProps {
 }
 
 export function DoctorProfileClient({ doctor }: DoctorProfileClientProps) {
+  const { user } = useSession()
   // Mock data for demonstration
   const mockStats = {
     patients: 3000,
@@ -220,6 +223,7 @@ export function DoctorProfileClient({ doctor }: DoctorProfileClientProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [recordsPerPage, setRecordsPerPage] = useState("10")
   const [currentPage, setCurrentPage] = useState(1)
+  const [isAvailable, setIsAvailable] = useState(doctor.isAvailable)
 
   useEffect(() => {
     // Filter appointments based on search term
@@ -290,6 +294,22 @@ export function DoctorProfileClient({ doctor }: DoctorProfileClientProps) {
 
   const availabilitySchedule = getAvailabilitySchedule()
 
+  const handleToggleAvailability = async () => {
+    try {
+      const result = await updateDoctor(doctor.id, {
+        isAvailable: !isAvailable
+      })
+      
+      if (result.success) {
+        setIsAvailable(!isAvailable)
+      } else {
+        console.error("Failed to update doctor availability:", result.error)
+      }
+    } catch (error) {
+      console.error("Error updating doctor availability:", error)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -331,10 +351,10 @@ export function DoctorProfileClient({ doctor }: DoctorProfileClientProps) {
                   <span className="text-xs text-gray-600 ml-1">{mockStats.reviews} Reviews</span>
                 </div>
                 <Badge 
-                  variant={doctor.isAvailable ? "completed" : "pending"}
+                  variant={isAvailable ? "completed" : "pending"}
                   className="rounded-full text-xs"
                 >
-                  {doctor.isAvailable ? "Available" : "Unavailable"}
+                  {isAvailable ? "Available" : "Unavailable"}
                 </Badge>
               </div>
             </div>
@@ -373,8 +393,13 @@ export function DoctorProfileClient({ doctor }: DoctorProfileClientProps) {
               <Button variant="outline" size="sm" className="flex-1 text-xs md:text-sm">
                 Edit
               </Button>
-              <Button variant="outline" size="sm" className="flex-1 text-xs md:text-sm">
-                Schedule
+              <Button 
+                variant={isAvailable ? "outline" : "digigo"} 
+                size="sm" 
+                className="flex-1 text-xs md:text-sm"
+                onClick={handleToggleAvailability}
+              >
+                {isAvailable ? "Set Unavailable" : "Set Available"}
               </Button>
             </div>
           </CardContent>

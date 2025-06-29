@@ -1,3 +1,4 @@
+// components/admin/staffs/staff-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -15,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { FileUpload, FilePreview } from "@/components/shared/file-upload"
+import { useSession } from "@/components/auth/session-provider"
 
 const staffSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -48,26 +51,93 @@ export function StaffForm({
   onCancel,
   initialData,
 }: StaffFormProps) {
+  const [profileImage, setProfileImage] = useState<{name: string, url: string} | null>(null)
+  const [documentFiles, setDocumentFiles] = useState<{name: string, url: string}[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user } = useSession()
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting: formSubmitting },
   } = useForm<StaffFormData>({
     resolver: zodResolver(staffSchema),
     defaultValues: initialData,
   })
 
+  const handleProfileImageUpload = (url: string, file: File) => {
+    setProfileImage({ name: file.name, url })
+  }
+
+  const handleDocumentUpload = (url: string, file: File) => {
+    setDocumentFiles(prev => [...prev, { name: file.name, url }])
+  }
+
+  const removeDocument = (index: number) => {
+    setDocumentFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleFormSubmit = async (data: StaffFormData) => {
+    setIsSubmitting(true)
+    
+    try {
+      // In a real app, you would send the profile image and documents to the server
+      const staffData = {
+        ...data,
+        profileImage: profileImage?.url,
+        documents: documentFiles.map(doc => doc.url)
+      }
+      
+      // Call the onSubmit callback with the enhanced data
+      onSubmit(data)
+    } catch (error) {
+      console.error("Error saving staff:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <Card className="w-full max-w-6xl mx-auto border-none shadow-none">
       <CardHeader className="pb-6">
         <CardTitle className="text-2xl md:text-3xl font-sf-pro font-semibold text-black">
-          Add Staff
+          {initialData?.firstName ? "Edit Staff" : "Add Staff"}
         </CardTitle>
       </CardHeader>
       <CardContent className="px-6 md:px-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+          {/* Profile Image Upload */}
+          <div className="flex justify-center mb-6">
+            <div className="space-y-4 text-center">
+              <div className="relative inline-block">
+                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {profileImage ? (
+                    <img 
+                      src={profileImage.url} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-4xl text-gray-400">
+                      {initialData?.firstName?.charAt(0) || "S"}
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              <FileUpload
+                onFileUpload={handleProfileImageUpload}
+                folder="staff-profiles"
+                accept="image/*"
+                multiple={false}
+                buttonText="Upload Profile Image"
+                buttonVariant="outline"
+              />
+            </div>
+          </div>
+
           {/* Row 1: First Name, Last Name, Age, Gender */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
@@ -430,23 +500,57 @@ export function StaffForm({
             </div>
           </div>
 
+          {/* Documents Upload */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-black">
+              Upload Documents
+            </Label>
+            <div className="border-2 border-dashed border-[#7165e1] rounded-lg p-6 text-center bg-[#f8f7ff]">
+              <FileUpload
+                onFileUpload={handleDocumentUpload}
+                folder="staff-documents"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                multiple={true}
+                buttonText="Upload Documents"
+                buttonVariant="ghost"
+                className="flex flex-col items-center"
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                Supported formats: PDF, JPG, PNG, DOC, DOCX
+              </p>
+            </div>
+            
+            {/* Display uploaded documents */}
+            {documentFiles.length > 0 && (
+              <div className="space-y-2 mt-2">
+                {documentFiles.map((file, index) => (
+                  <FilePreview
+                    key={index}
+                    file={file}
+                    onRemove={() => removeDocument(index)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end pt-6 border-t border-gray-200">
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={isSubmitting || formSubmitting}
               className="w-full sm:w-auto h-12 px-8 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || formSubmitting}
               className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1] text-white font-medium"
             >
-              {isSubmitting ? "Adding..." : "Add Staff"}
+              {isSubmitting || formSubmitting ? "Adding..." : initialData?.firstName ? "Update Staff" : "Add Staff"}
             </Button>
           </div>
         </form>

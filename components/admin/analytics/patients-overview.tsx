@@ -15,11 +15,6 @@ export function PatientsOverview() {
   const femalePercentage = (data.female / total) * 100
   const childrenPercentage = (data.children / total) * 100
 
-  // Calculate angles for SVG paths
-  const maleAngle = (malePercentage / 100) * 360
-  const femaleAngle = (femalePercentage / 100) * 360
-  const childrenAngle = (childrenPercentage / 100) * 360
-
   return (
     <Card className="rounded-[20px] border-none shadow-sm h-[400px]">
       <CardHeader className="pb-4">

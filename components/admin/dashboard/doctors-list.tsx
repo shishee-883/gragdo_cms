@@ -27,7 +27,7 @@ export function DoctorsList({ doctors }: DoctorsListProps) {
       title="Doctors List"
       users={transformedDoctors}
       actionLabel="Manage"
-      // onAction={() => console.log('Manage doctors')}
+      actionUrl="/admin/doctors"
     />
   )
 }
