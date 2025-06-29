@@ -360,7 +360,7 @@ export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
                   </div>
                 ) : (
                   <Link
-                    href={item.href}
+                    href={item.href as string}
                     className={cn(
                       "flex items-center p-3 rounded-[12px] transition-all duration-200 hover:bg-[#7165e1]/10",
                       pathname === item.href ? "bg-[#7165e1]" : ""
@@ -466,7 +466,7 @@ export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
                 {/* Submenu */}
                 {item.hasSubmenu && !isCollapsed && expandedItems.includes(item.name) && (
                   <div className="ml-[52px] mt-2 space-y-2 transition-all duration-300">
-                    {item.submenu?.map((subItem) => (
+                    {item.submenu?.map((subItem:any) => (
                       <Link
                         key={subItem.name}
                         href={subItem.href}
@@ -485,7 +485,7 @@ export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
               </div>
             ) : (
               <Link
-                href={item.href}
+                href={item.href as string}
                 className={cn(
                   "flex items-center p-3 rounded-[16px] transition-all duration-200 hover:bg-[#7165e1]/10 group",
                   pathname === item.href ? "bg-[#7165e1]" : "",

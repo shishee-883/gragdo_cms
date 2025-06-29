@@ -68,7 +68,7 @@ export function AdminAppointments({ appointments }: AdminAppointmentsProps) {
       columns={columns}
       data={appointmentList}
       actionLabel="View All"
-      onAction={() => console.log('View all appointments')}
+      // onAction={() => console.log('View all appointments')}
       renderCell={renderCell}
     />
   )
