@@ -4,9 +4,9 @@ import { signup } from '@/lib/actions/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, phone, role, clinicId, password, address, profile_image } = body;
+    const { firstName, lastName, email, phone, password, address, profile_image } = body;
 
-    if (!firstName || !lastName || !email || !phone || !role || !password) {
+    if (!firstName || !lastName || !email || !phone || !password) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -18,8 +18,7 @@ export async function POST(request: NextRequest) {
       lastName,
       email,
       phone,
-      role,
-      clinicId,
+      role: 'SUPER_ADMIN', // Always set role to SUPER_ADMIN
       password,
       address,
       profile_image

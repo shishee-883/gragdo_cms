@@ -19,7 +19,6 @@ export function SignupForm() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [clinicId, setClinicId] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [agreeTerms, setAgreeTerms] = useState(false)
@@ -57,7 +56,6 @@ export function SignupForm() {
         email,
         phone,
         role: UserRole.SUPER_ADMIN, // Always set role to SUPER_ADMIN
-        clinicId: clinicId || undefined,
         password,
         address: "",
         profile_image: "https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg"
@@ -157,17 +155,6 @@ export function SignupForm() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           required
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="clinicId">Clinic ID (Optional)</Label>
-        <Input
-          id="clinicId"
-          placeholder="Clinic ID"
-          className="h-12 rounded-lg"
-          value={clinicId}
-          onChange={(e) => setClinicId(e.target.value)}
         />
       </div>
       
