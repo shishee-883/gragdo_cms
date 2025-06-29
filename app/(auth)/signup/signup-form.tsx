@@ -17,6 +17,7 @@ export function SignupForm() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
+  const [address, setAddress] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [agreeTerms, setAgreeTerms] = useState(false)
@@ -53,7 +54,9 @@ export function SignupForm() {
         lastName,
         email,
         phone,
-        password
+        password,
+        address,
+        profile_image:"ddd",
       })
       
       if (result.success) {
@@ -147,6 +150,17 @@ export function SignupForm() {
           className="h-12 rounded-lg"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="phone">Address</Label>
+        <Input
+          id="address"
+          placeholder="Address"
+          className="h-12 rounded-lg"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
           required
         />
       </div>
