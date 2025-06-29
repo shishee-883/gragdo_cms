@@ -1,4 +1,4 @@
-// components/profile/profile-client.tsx
+
 "use client"
 
 import { useState } from "react"
@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileUpload, FilePreview } from "@/components/shared/file-upload"
+import { FileUpload } from "@/components/shared/file-upload"
 import { 
   User, 
   Mail, 
@@ -28,6 +28,7 @@ import {
 import { updateUserProfile } from "@/lib/actions/profile"
 import { formatDate } from "@/lib/utils"
 import { ChangePasswordForm } from "@/components/settings/change-password-form"
+import { useRouter } from "next/router"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -51,6 +52,7 @@ interface UserProfile {
   clinic?: {
     name: string
     address: string
+    id:string
   }
   createdAt: Date
 }
@@ -60,6 +62,7 @@ interface ProfileClientProps {
 }
 
 export function ProfileClient({ initialProfile }: ProfileClientProps) {
+  const router=useRouter();
   const [isLoading, setIsLoading] = useState(false)
   const [profileImage, setProfileImage] = useState<string | undefined>(initialProfile.profileImage)
   const [activeTab, setActiveTab] = useState("profile")
@@ -131,6 +134,9 @@ export function ProfileClient({ initialProfile }: ProfileClientProps) {
         return role
     }
   }
+  const handleroute=async()=>{
+    router.push(`/${initialProfile.clinic?.id}/admin/${initialProfile.id}`)
+  }
 
   return (
     <>
@@ -152,6 +158,7 @@ export function ProfileClient({ initialProfile }: ProfileClientProps) {
           </Button>
         )}
       </div>
+      <Button onClick={handleroute}>Profile Page</Button>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-white rounded-lg p-1">

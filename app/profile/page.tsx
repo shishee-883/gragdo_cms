@@ -38,7 +38,6 @@ export default async function ProfilePage() {
           */}
           <ProfileClient initialProfile={userProfile} />
         </div>
-        <div>Go to clinics</div>
       </main>
     </div>
   )
