@@ -14,13 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { login } from "@/lib/actions/auth"
+import { login, getCurrentUser } from "@/lib/actions/auth"
 import { UserRole } from "@/lib/types"
 import { Eye, EyeOff } from "lucide-react"
 
 export function LoginForm() {
   const router = useRouter()
-  const { login: setSession } = useSession()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState<UserRole | "">("")
@@ -73,42 +72,34 @@ export function LoginForm() {
           localStorage.removeItem('digigo_role')
         }
         
-        // Set the session
-        if (result.user) {
-          setSession(result.user)
-          
-          // Redirect based on role
-          switch (role) {
-            case "SUPER_ADMIN":
-              router.push("/clinics")
-              break
-            case "ADMIN":
-              if (result.user?.clinicId) {
-                router.push(`/${result.user.clinicId}/admin/${result.user.id}/dashboard`)
-              } else {
-                router.push("/admin/dashboard")
-              }
-              break
-            case "STAFF":
-              if (result.user?.clinicId && result.user?.id) {
-                router.push(`/${result.user.clinicId}/staff/${result.user.id}/dashboard`)
-              } else {
-                router.push("/staff/dashboard")
-              }
-              break
-            case "DOCTOR":
-              if (result.user?.clinicId && result.user?.id) {
-                router.push(`/${result.user.clinicId}/doctor/${result.user.id}/dashboard`)
-              } else {
-                router.push("/doctor/dashboard")
-              }
-              break
-            default:
-              router.push("/")
-          }
-        } else {
-          // If no user data is returned, redirect to home page
-          router.push("/")
+        // Redirect based on role
+        switch (role) {
+          case "SUPER_ADMIN":
+            router.push("/clinics")
+            break
+          case "ADMIN":
+            if (result.user?.clinicId) {
+              router.push(`/${result.user.clinicId}/admin/${result.user.id}/dashboard`)
+            } else {
+              router.push("/admin/dashboard")
+            }
+            break
+          case "STAFF":
+            if (result.user?.clinicId && result.user?.id) {
+              router.push(`/${result.user.clinicId}/staff/${result.user.id}/dashboard`)
+            } else {
+              router.push("/staff/dashboard")
+            }
+            break
+          case "DOCTOR":
+            if (result.user?.clinicId && result.user?.id) {
+              router.push(`/${result.user.clinicId}/doctor/${result.user.id}/dashboard`)
+            } else {
+              router.push("/doctor/dashboard")
+            }
+            break
+          default:
+            router.push("/")
         }
       } else {
         setError(result.error || "Login failed")

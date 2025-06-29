@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { LayoutDashboard, Calendar, Users, UserCheck, FileText, CreditCard, Settings, ChevronDown, Building2, Menu, X, Users2, Receipt, Activity, Bed, Pill, FlaskRound as Flask, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { getCurrentUser } from "@/lib/actions/auth"
 
 interface SidebarProps {
   userRole: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF' | 'DOCTOR'
@@ -15,16 +16,25 @@ interface SidebarProps {
 
 export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
   const pathname = usePathname()
-  const { user } = useSession()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    fetchCurrentUser()
+  }, [])
 
   // Use session user role if available
-  const effectiveRole = user?.role || userRole
-  const effectiveClinicId = user?.clinicId || clinicId
-  const effectiveUserId = user?.id || userId
+  const effectiveRole = currentUser?.role || userRole
+  const effectiveClinicId = currentUser?.clinicId || clinicId
+  const effectiveUserId = currentUser?.id || userId
 
   useEffect(() => {
     const checkScreenSize = () => {

@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { formatDate } from "@/lib/utils"
 import { PlanDetailsModal } from "@/components/layout/plan-details-modal"
 import Link from "next/link"
+import { getCurrentUser, logout } from "@/lib/actions/auth"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,10 +29,10 @@ interface HeaderProps {
 export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: HeaderProps) {
   const currentDate = new Date()
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
-  const { user, logout } = useSession()
 
   const handleLogout = async () => {
     await logout()
+    window.location.href = '/login'
   }
 
   return (
@@ -41,7 +42,7 @@ export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: Heade
         <Search className="w-4 h-4 md:w-5 md:h-5 text-[#000000b2] flex-shrink-0" />
         <Input
           placeholder="Search patients, appointments..."
-          className="ml-2 bg-transparent border-none text-sm md:text-base font-sf-pro font-medium placeholder:text-[#000000b2] focus-visible:ring-0"
+          className="pl-10 bg-transparent border-none text-sm md:text-base font-sf-pro font-medium placeholder:text-[#000000b2] focus-visible:ring-0"
         />
       </div>
 
@@ -90,14 +91,17 @@ export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: Heade
           <DropdownMenuTrigger asChild>
             <div className="w-[180px] sm:w-[220px] md:w-[280px] h-[40px] md:h-[50px] bg-[#f4f3ff] rounded-[16px] flex items-center px-2 md:px-3 hover:bg-[#eeebff] transition-colors cursor-pointer">
               <Avatar className="w-[30px] h-[30px] md:w-[40px] md:h-[40px] rounded-xl flex-shrink-0">
-                <AvatarImage src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2" />
+                <AvatarImage 
+                  src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2" 
+                  alt={clinicName}
+                />
                 <AvatarFallback className="bg-[#7165e1] text-white font-sf-pro font-semibold text-sm md:text-base rounded-xl">
-                  {user?.name?.charAt(0) || clinicName.charAt(0)}
+                  {clinicName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="ml-2 md:ml-3 flex-1 min-w-0">
                 <p className="text-sm md:text-lg text-black font-sf-pro font-semibold truncate">
-                  {user?.name || clinicName}
+                  {clinicName}
                 </p>
                 <p className="text-xs md:text-sm text-black font-sf-pro truncate">
                   {location}

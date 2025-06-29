@@ -7,14 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { signup } from "@/lib/actions/auth"
+import { signup, getCurrentUser } from "@/lib/actions/auth"
 import { UserRole } from "@/lib/types"
 import { Eye, EyeOff } from "lucide-react"
 
 
 export function SignupForm() {
   const router = useRouter()
-  const { login: setSession } = useSession()
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
@@ -55,18 +54,12 @@ export function SignupForm() {
         lastName,
         email,
         phone,
-        role: UserRole.SUPER_ADMIN, // Always set role to SUPER_ADMIN
         password,
         address: "",
         profile_image: "https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg"
       })
       
       if (result.success) {
-        // Set the session
-        if (result.user) {
-          setSession(result.user)
-        }
-        
         // Show success message
         setSuccess(true)
       } else {
