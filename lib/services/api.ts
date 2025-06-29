@@ -225,8 +225,7 @@ export const authApi = {
   async resetPassword(token: string, newPassword: string) {
     return apiClient.post('/auth/reset-password/', { 
       token, 
-      new_password: newPassword,
-      confirm_password: newPassword
+      newPassword
     });
   },
   
@@ -252,7 +251,7 @@ export const authApi = {
    * @returns New access token
    */
   async refreshToken(refreshToken: string) {
-    return apiClient.post('/auth/token/refresh/', { refresh: refreshToken });
+    return apiClient.post('/auth/refresh/', { refreshToken });
   },
   
   /**
@@ -263,9 +262,8 @@ export const authApi = {
    */
   async changePassword(currentPassword: string, newPassword: string) {
     return apiClient.post('/auth/change-password/', {
-      current_password: currentPassword,
-      new_password: newPassword,
-      confirm_password: newPassword
+      currentPassword,
+      newPassword
     });
   },
   

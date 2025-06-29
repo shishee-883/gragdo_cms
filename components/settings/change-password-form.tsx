@@ -25,6 +25,7 @@ type PasswordFormData = z.infer<typeof passwordSchema>
 export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState("")
+  const [error, setError] = useState("")
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -41,6 +42,7 @@ export function ChangePasswordForm() {
   const onSubmit = async (data: PasswordFormData) => {
     setIsLoading(true)
     setSuccess("")
+    setError("")
     
     try {
       const result = await changePassword(data.currentPassword, data.newPassword)
@@ -49,10 +51,10 @@ export function ChangePasswordForm() {
         setSuccess(result.message || "Password changed successfully")
         reset() // Clear the form
       } else {
-        // Set the error in the form
-        console.error(result.error)
+        setError(result.error || "Failed to change password")
       }
     } catch (error) {
+      setError("An unexpected error occurred")
       console.error("Error changing password:", error)
     } finally {
       setIsLoading(false)
@@ -70,6 +72,12 @@ export function ChangePasswordForm() {
         {success && (
           <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
             {success}
+          </div>
+        )}
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+            {error}
           </div>
         )}
         

@@ -97,9 +97,8 @@ export async function changePassword(currentPassword: string, newPassword: strin
       },
       credentials: 'include', // Include cookies for authentication
       body: JSON.stringify({ 
-        current_password: currentPassword, 
-        new_password: newPassword, 
-        confirm_password: newPassword 
+        currentPassword, 
+        newPassword 
       }),
     });
     

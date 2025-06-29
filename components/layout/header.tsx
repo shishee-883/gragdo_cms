@@ -31,8 +31,8 @@ export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: Heade
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
   const { user, logout } = useSession()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
   }
 
   return (

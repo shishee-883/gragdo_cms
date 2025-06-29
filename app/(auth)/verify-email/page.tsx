@@ -112,16 +112,18 @@ export default function VerifyEmailPage() {
                 </p>
               </div>
               
-              <Link href="/login">
-                <Button variant="outline" className="mr-2">
-                  Back to Login
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button variant="link" className="text-[#7165e1]">
-                  Sign up again
-                </Button>
-              </Link>
+              <div className="flex justify-center gap-4">
+                <Link href="/login">
+                  <Button variant="outline" className="mr-2">
+                    Back to Login
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button variant="link" className="text-[#7165e1]">
+                    Sign up again
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
         </div>
