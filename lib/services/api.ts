@@ -204,7 +204,6 @@ export const authApi = {
       phone: data.phone,
       address: data.address || "",
       profile_image: data.profile_image || "",
-      role: data.role,
       password: data.password,
     });
   },
