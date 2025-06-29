@@ -53,12 +53,13 @@ export function SignupForm() {
         lastName,
         email,
         phone,
-        password,
-        address: "",
-        profile_image: "https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg"
+        password
       })
       
       if (result.success) {
+        // Set the sessiongit 
+
+        
         // Show success message
         setSuccess(true)
       } else {
