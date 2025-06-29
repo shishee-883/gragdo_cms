@@ -1,26 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { authApi } from '@/lib/services/api';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  try {
-    const response = await authApi.getCurrentUser();
-    
-    if (!response.success) {
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: response.user
-    });
-  } catch (error) {
-    console.error('Get current user error:', error);
-    return NextResponse.json(
-      { success: false, error: 'An unexpected error occurred' },
-      { status: 500 }
-    );
-  }
+// This route is deprecated and will redirect to the new endpoint
+export async function GET() {
+  return NextResponse.redirect(new URL('/api/current-user-details', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'));
 }
