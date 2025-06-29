@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     '/signup', 
     '/forgot-password', 
     '/reset-password',
-    '/verify-email'
+    '/verify'
   ]
   
   // Check if the current path is a public path

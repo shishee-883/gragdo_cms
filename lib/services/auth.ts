@@ -60,31 +60,6 @@ export async function refreshAccessToken(refreshToken: string): Promise<string |
 }
 
 /**
- * Verify an email using a token
- */
-export async function verifyEmail(token: string): Promise<boolean> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/verify-email/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to verify email');
-    }
-    
-    const data = await response.json();
-    return data.success;
-  } catch (error) {
-    console.error('Error verifying email:', error);
-    return false;
-  }
-}
-
-/**
  * Change a user's password
  */
 export async function changePassword(currentPassword: string, newPassword: string): Promise<{success: boolean, message?: string, error?: string}> {

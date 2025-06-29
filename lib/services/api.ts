@@ -264,11 +264,12 @@ export const authApi = {
   
   /**
    * Verify the user's email
+   * @param uidb64 User ID base64
    * @param token Verification token
    * @returns Email verification response
    */
-  async verifyEmail(token: string) {
-    return apiClient.post('/auth/verify-email/', { token });
+  async verifyEmail(uidb64: string, token: string) {
+    return apiClient.get(`/verify/${uidb64}/${token}/`);
   }
 };
 

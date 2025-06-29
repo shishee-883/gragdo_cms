@@ -154,13 +154,21 @@ export async function changePassword(currentPassword: string, newPassword: strin
   }
 }
 
-export async function verifyEmail(token: string) {
+export async function verifyEmail(uidb64: string, token: string) {
   try {
-    const success = await verifyEmailService(token)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/verify/${uidb64}/${token}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    
+    const data = await response.json()
     
     return { 
-      success, 
-      message: success ? 'Email verified successfully' : 'Failed to verify email' 
+      success: response.ok && data.success, 
+      message: data.message || (response.ok ? 'Email verified successfully' : 'Failed to verify email'),
+      error: !response.ok ? (data.error || 'Failed to verify email') : undefined
     }
   } catch (error) {
     console.error('Error verifying email:', error)
