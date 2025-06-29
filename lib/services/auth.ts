@@ -69,6 +69,7 @@ export async function changePassword(currentPassword: string, newPassword: strin
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials:'include',
       body: JSON.stringify({ 
         currentPassword, 
         newPassword 

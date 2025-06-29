@@ -30,6 +30,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', 
         cache: 'no-store', // Disable caching
       });
       
@@ -57,6 +58,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', 
         body: JSON.stringify(data),
         cache: 'no-store', // Disable caching
       });
@@ -85,6 +87,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', 
         body: JSON.stringify(data),
         cache: 'no-store', // Disable caching
       });
@@ -112,6 +115,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', 
         cache: 'no-store', // Disable caching
       });
       
