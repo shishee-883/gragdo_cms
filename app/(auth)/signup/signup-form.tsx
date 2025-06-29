@@ -55,8 +55,8 @@ export function SignupForm() {
         email,
         phone,
         password,
-        address,
-        profile_image:"ddd",
+        profile_image:"dd",
+        address
       })
       
       if (result.success) {

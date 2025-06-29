@@ -187,13 +187,13 @@ export const authApi = {
    * @returns Signup response
    */
   async signup(data: {
-    email: string;
-    first_name: string;
-    last_name: string;
-    phone: string;
-    address: string;
-    profile_image: string;
-    password: string;
+    firstName:string;
+    lastName:string;
+    email:string;
+    phone:string;
+    password:string;
+    address:string;
+    profile_image:string;
   }) {
     return apiClient.post('/auth/signup/', data);
   },
