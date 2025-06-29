@@ -257,12 +257,14 @@ export const authApi = {
    * Change the user's password
    * @param currentPassword Current password
    * @param newPassword New password
+   * @param confirmPassword Confirm new password
    * @returns Password change response
    */
-  async changePassword(currentPassword: string, newPassword: string) {
-    return apiClient.post('/auth/change-password/', {
-      currentPassword,
-      newPassword
+  async updatePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+    return apiClient.post('/update-password/', {
+      current_password: currentPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword
     });
   },
   

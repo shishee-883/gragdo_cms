@@ -158,9 +158,27 @@ export async function refreshToken(refreshToken: string) {
   }
 }
 
-export async function changePassword(currentPassword: string, newPassword: string) {
+export async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
   try {
-    return await changePasswordService(currentPassword, newPassword)
+    const response = await fetch('/api/update-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        current_password: currentPassword, 
+        new_password: newPassword, 
+        confirm_password: confirmPassword 
+      }),
+    });
+    
+    const data = await response.json();
+    
+    return { 
+      success: response.ok && data.success, 
+      message: data.message || (response.ok ? 'Password updated successfully' : 'Failed to update password'),
+      error: !response.ok ? (data.error || 'Failed to update password') : undefined
+    }
   } catch (error) {
     console.error('Error changing password:', error)
     return { success: false, error: 'An error occurred while changing password' }
