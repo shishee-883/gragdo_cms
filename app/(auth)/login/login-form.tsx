@@ -6,23 +6,14 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { login, getCurrentUser } from "@/lib/actions/auth"
-import { UserRole } from "@/lib/types"
 import { Eye, EyeOff } from "lucide-react"
 
 export function LoginForm() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [role, setRole] = useState<UserRole | "">("")
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -31,22 +22,17 @@ export function LoginForm() {
   // Check for saved credentials in localStorage
   useEffect(() => {
     const savedEmail = localStorage.getItem('digigo_email')
-    const savedRole = localStorage.getItem('digigo_role')
     
     if (savedEmail) {
       setEmail(savedEmail)
       setRememberMe(true)
-    }
-    
-    if (savedRole) {
-      setRole(savedRole as UserRole)
     }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!email || !password || !role) {
+    if (!email || !password) {
       setError("Please fill in all fields")
       return
     }
@@ -57,49 +43,48 @@ export function LoginForm() {
     try {
       const result = await login({
         email,
-        password,
-        role: role as UserRole
+        password
       })
       
       if (result.success) {
         // Save credentials if remember me is checked
         if (rememberMe) {
           localStorage.setItem('digigo_email', email)
-          localStorage.setItem('digigo_role', role)
         } else {
           // Clear saved credentials if remember me is unchecked
           localStorage.removeItem('digigo_email')
-          localStorage.removeItem('digigo_role')
         }
         
-        // Redirect based on role
-        switch (role) {
-          case "SUPER_ADMIN":
+        // Get current user to determine redirect path
+        const currentUser = await getCurrentUser()
+        
+        if (currentUser) {
+          // Redirect based on role
+          if (currentUser.role === "SUPER_ADMIN") {
             router.push("/clinics")
-            break
-          case "ADMIN":
-            if (result.user?.clinicId) {
-              router.push(`/${result.user.clinicId}/admin/${result.user.id}/dashboard`)
+          } else if (currentUser.role === "ADMIN") {
+            if (currentUser.clinicId) {
+              router.push(`/${currentUser.clinicId}/admin/${currentUser.id}/dashboard`)
             } else {
               router.push("/admin/dashboard")
             }
-            break
-          case "STAFF":
-            if (result.user?.clinicId && result.user?.id) {
-              router.push(`/${result.user.clinicId}/staff/${result.user.id}/dashboard`)
+          } else if (currentUser.role === "STAFF") {
+            if (currentUser.clinicId && currentUser.id) {
+              router.push(`/${currentUser.clinicId}/staff/${currentUser.id}/dashboard`)
             } else {
               router.push("/staff/dashboard")
             }
-            break
-          case "DOCTOR":
-            if (result.user?.clinicId && result.user?.id) {
-              router.push(`/${result.user.clinicId}/doctor/${result.user.id}/dashboard`)
+          } else if (currentUser.role === "DOCTOR") {
+            if (currentUser.clinicId && currentUser.id) {
+              router.push(`/${currentUser.clinicId}/doctor/${currentUser.id}/dashboard`)
             } else {
               router.push("/doctor/dashboard")
             }
-            break
-          default:
+          } else {
             router.push("/")
+          }
+        } else {
+          router.push("/")
         }
       } else {
         setError(result.error || "Login failed")
@@ -131,21 +116,6 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="role">Role</Label>
-        <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-          <SelectTrigger className="h-12 rounded-lg">
-            <SelectValue placeholder="Select Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-            <SelectItem value="ADMIN">Admin</SelectItem>
-            <SelectItem value="STAFF">Staff</SelectItem>
-            <SelectItem value="DOCTOR">Doctor</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       
       <div className="space-y-2">

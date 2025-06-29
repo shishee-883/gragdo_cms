@@ -175,11 +175,10 @@ export const authApi = {
    * Login a user
    * @param email User email
    * @param password User password
-   * @param role User role
    * @returns Login response
    */
-  async login(email: string, password: string, role: string) {
-    return apiClient.post('/auth/login/', { email, password, role });
+  async login(email: string, password: string) {
+    return apiClient.post('/auth/login/', { email, password });
   },
   
   /**
@@ -188,23 +187,15 @@ export const authApi = {
    * @returns Signup response
    */
   async signup(data: {
-    firstName: string;
-    lastName: string;
     email: string;
+    first_name: string;
+    last_name: string;
     phone: string;
+    address: string;
+    profile_image: string;
     password: string;
-    address?: string;
-    profile_image?: string;
   }) {
-    return apiClient.post('/auth/signup/', {
-      email: data.email,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      phone: data.phone,
-      address: data.address || "",
-      profile_image: data.profile_image || "",
-      password: data.password,
-    });
+    return apiClient.post('/auth/signup/', data);
   },
   
   /**

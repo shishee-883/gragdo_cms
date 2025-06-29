@@ -4,16 +4,16 @@ import { login } from '@/lib/actions/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, role } = body;
+    const { email, password } = body;
 
-    if (!email || !password || !role) {
+    if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Email and password are required' },
         { status: 400 }
       );
     }
 
-    const result = await login({ email, password, role });
+    const result = await login({ email, password });
 
     if (!result.success) {
       return NextResponse.json(
@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      user: result.user
+      user: result.user,
+      message: result.message
     });
   } catch (error) {
     console.error('Login error:', error);
