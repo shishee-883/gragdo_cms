@@ -825,3 +825,19 @@ export const billingApi = {
     return apiClient.post('/billing/payment/', data);
   }
 };
+
+export const usersApi = {
+  async createClinicUser(clinicId: string, data: {
+    first_name?: string;
+    last_name?: string;
+    email: string;
+    phone_number: string;
+    address?: string;
+    password: string;
+    role: 'admin' | 'doctor' | 'staff';
+  }) {
+    return apiClient.post(`/create-clinic-user/${clinicId}/`, data);
+  },
+  
+  // Add other user-related API methods as needed
+};
