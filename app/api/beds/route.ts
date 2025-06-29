@@ -1,22 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createBedRecord } from '@/lib/actions/beds';
-import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { bedNumber, roomId, clinicId, notes } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    const { bedNumber, roomId, clinicId, notes, createdById } = body;
 
     if (bedNumber === undefined || !roomId || !clinicId) {
       return NextResponse.json(
@@ -29,7 +17,7 @@ export async function POST(request: NextRequest) {
       bedNumber,
       roomId,
       clinicId,
-      createdById: token, // Using token as createdById for now
+      createdById: createdById || 'unknown',
       notes
     });
 

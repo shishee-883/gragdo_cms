@@ -66,6 +66,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -101,6 +102,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       // Call the logout API endpoint
       await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       })
     } catch (error) {
       console.error('Error during logout:', error)

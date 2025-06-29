@@ -30,9 +30,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Note: The cookie is already set in the signup function
-    // We just need to return the user data
-
     return NextResponse.json({
       success: true,
       user: result.user

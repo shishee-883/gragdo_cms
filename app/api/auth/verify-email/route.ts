@@ -16,9 +16,9 @@ export async function POST(request: NextRequest) {
     const result = await verifyEmail(token);
 
     return NextResponse.json({
-      success: result.success,
-      message: result.message,
-      error: result.error
+      success: result,
+      message: result ? 'Email verified successfully' : 'Failed to verify email',
+      error: !result ? 'Failed to verify email' : undefined
     });
   } catch (error) {
     console.error('Email verification error:', error);
