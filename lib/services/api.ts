@@ -852,7 +852,7 @@ export const usersApi = {
     address?: string;
     role?: 'admin' | 'doctor' | 'staff';
   }) {
-    return apiClient.post(`/update-user/${userId}/`,{ data});
+    return apiClient.post(`/update-user/${userId}/`,{data});
   },
   
   async deleteUser(userId: string, password: string) {
