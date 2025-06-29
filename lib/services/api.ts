@@ -270,6 +270,15 @@ export const authApi = {
    */
   async verifyEmail(uidb64: string, token: string) {
     return apiClient.get(`/verify/${uidb64}/${token}/`);
+  },
+  
+  /**
+   * Resend verification email
+   * @param email User email
+   * @returns Resend verification email response
+   */
+  async resendVerificationEmail(email: string) {
+    return apiClient.post('/resend-verification-email/', { email });
   }
 };
 

@@ -2,7 +2,7 @@
 
 import { UserRole } from "@/lib/types"
 import { authApi } from '@/lib/services/api'
-import { changePassword as changePasswordService, verifyEmail as verifyEmailService } from '@/lib/services/auth'
+import { changePassword as changePasswordService } from '@/lib/services/auth'
 
 interface LoginCredentials {
   email: string
@@ -173,5 +173,20 @@ export async function verifyEmail(uidb64: string, token: string) {
   } catch (error) {
     console.error('Error verifying email:', error)
     return { success: false, error: 'An error occurred while verifying email' }
+  }
+}
+
+export async function resendVerificationEmail(email: string) {
+  try {
+    const response = await authApi.resendVerificationEmail(email)
+    
+    return { 
+      success: response.success, 
+      message: response.message,
+      error: response.error 
+    }
+  } catch (error) {
+    console.error('Error resending verification email:', error)
+    return { success: false, error: 'An error occurred while resending verification email' }
   }
 }

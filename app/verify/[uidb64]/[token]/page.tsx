@@ -4,8 +4,10 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, XCircle } from "lucide-react"
+import { CheckCircle, XCircle, RefreshCw } from "lucide-react"
 import Image from "next/image"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function VerifyEmailPage() {
   const router = useRouter()
@@ -13,6 +15,10 @@ export default function VerifyEmailPage() {
   const [isVerifying, setIsVerifying] = useState(true)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState("")
+  const [email, setEmail] = useState("")
+  const [isResending, setIsResending] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
+  const [resendError, setResendError] = useState("")
 
   useEffect(() => {
     async function verifyEmail() {
@@ -56,6 +62,43 @@ export default function VerifyEmailPage() {
 
     verifyEmail()
   }, [params, router])
+
+  const handleResendVerification = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      setResendError("Please enter your email address")
+      return
+    }
+    
+    setIsResending(true)
+    setResendError("")
+    setResendSuccess(false)
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/resend-verification-email/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setResendSuccess(true)
+        setResendError("")
+      } else {
+        setResendError(data.error || "Failed to resend verification email")
+      }
+    } catch (error) {
+      console.error('Error resending verification email:', error)
+      setResendError("An unexpected error occurred")
+    } finally {
+      setIsResending(false)
+    }
+  }
 
   return (
     <div className="flex h-screen">
@@ -120,12 +163,62 @@ export default function VerifyEmailPage() {
                 <p className="text-gray-600 mb-6">
                   {error || "We couldn't verify your email. The verification link may have expired or is invalid."}
                 </p>
-                <Button 
-                  onClick={() => router.push('/login')}
-                  className="w-full h-12 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1]"
-                >
-                  Back to Login
-                </Button>
+                
+                <div className="border-t border-gray-200 pt-6 mt-6">
+                  <h3 className="text-lg font-semibold mb-4">Resend Verification Email</h3>
+                  
+                  {resendSuccess ? (
+                    <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+                      Verification email has been sent successfully. Please check your inbox.
+                    </div>
+                  ) : (
+                    <form onSubmit={handleResendVerification} className="space-y-4">
+                      <div className="text-left">
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="Enter your email address"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="mt-1"
+                          required
+                        />
+                      </div>
+                      
+                      {resendError && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                          {resendError}
+                        </div>
+                      )}
+                      
+                      <Button 
+                        type="submit"
+                        className="w-full h-12 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1] flex items-center justify-center"
+                        disabled={isResending}
+                      >
+                        {isResending ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          "Resend Verification Email"
+                        )}
+                      </Button>
+                    </form>
+                  )}
+                  
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline"
+                      onClick={() => router.push('/login')}
+                      className="w-full"
+                    >
+                      Back to Login
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
