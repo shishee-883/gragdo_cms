@@ -213,14 +213,18 @@ export const authApi = {
   
   /**
    * Reset a password
+   * @param uidb64 User ID base64
    * @param token Reset token
    * @param newPassword New password
+   * @param confirmPassword Confirm new password
    * @returns Password reset response
    */
-  async resetPassword(token: string, newPassword: string) {
-    return apiClient.post('/auth/reset-password/', { 
+  async resetPassword(uidb64: string, token: string, newPassword: string, confirmPassword: string) {
+    return apiClient.post('/reset-password/', { 
+      uidb64, 
       token, 
-      newPassword
+      new_password: newPassword, 
+      confirm_password: confirmPassword 
     });
   },
   

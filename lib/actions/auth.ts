@@ -71,14 +71,27 @@ export async function forgotPassword(email: string) {
   }
 }
 
-export async function resetPassword(token: string, newPassword: string) {
+export async function resetPassword(uidb64: string, token: string, newPassword: string, confirmPassword: string) {
   try {
-    const response = await authApi.resetPassword(token, newPassword)
+    const response = await fetch('/api/reset-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        uidb64, 
+        token, 
+        new_password: newPassword, 
+        confirm_password: confirmPassword 
+      }),
+    });
+    
+    const data = await response.json();
     
     return { 
-      success: response.success, 
-      message: response.message,
-      error: response.error 
+      success: response.ok && data.success, 
+      message: data.message || (response.ok ? 'Password reset successfully' : 'Failed to reset password'),
+      error: !response.ok ? (data.error || 'Failed to reset password') : undefined
     }
   } catch (error) {
     console.error("Error during password reset:", error)
