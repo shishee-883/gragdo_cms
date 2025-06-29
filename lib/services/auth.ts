@@ -1,7 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { config } from '@/lib/config';
 import { UserRole } from '@/lib/types';
-import { cookies } from 'next/headers';
 
 // Convert string to Uint8Array for jose
 const textEncoder = new TextEncoder();
@@ -95,7 +94,6 @@ export async function changePassword(currentPassword: string, newPassword: strin
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // Include cookies for authentication
       body: JSON.stringify({ 
         currentPassword, 
         newPassword 
@@ -129,59 +127,26 @@ export async function changePassword(currentPassword: string, newPassword: strin
  */
 export async function getSession() {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/me/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     
-    if (!token) {
+    if (!response.ok) {
       return null;
     }
     
-    const payload = await verifyToken(token);
+    const data = await response.json();
     
-    if (!payload) {
-      // Try to refresh the token
-      const refreshToken = cookieStore.get('refresh-token')?.value;
-      
-      if (!refreshToken) {
-        return null;
-      }
-      
-      const newToken = await refreshAccessToken(refreshToken);
-      
-      if (!newToken) {
-        return null;
-      }
-      
-      // Verify the new token
-      const newPayload = await verifyToken(newToken);
-      
-      if (!newPayload) {
-        return null;
-      }
-      
-      return {
-        user: {
-          id: newPayload.sub,
-          email: newPayload.email,
-          name: newPayload.name,
-          role: newPayload.role,
-          clinicId: newPayload.clinicId,
-          clinicIds: newPayload.clinicIds,
-        },
-        expires: new Date(newPayload.exp * 1000),
-      };
+    if (!data.success) {
+      return null;
     }
     
     return {
-      user: {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        role: payload.role,
-        clinicId: payload.clinicId,
-        clinicIds: payload.clinicIds,
-      },
-      expires: new Date(payload.exp * 1000),
+      user: data.user,
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     };
   } catch (error) {
     console.error('Error getting session:', error);

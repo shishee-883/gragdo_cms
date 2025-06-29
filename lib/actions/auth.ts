@@ -1,6 +1,5 @@
 'use server'
 
-import { cookies } from 'next/headers'
 import { UserRole } from "@/lib/types"
 import { authApi } from '@/lib/services/api'
 import { changePassword as changePasswordService, verifyEmail as verifyEmailService, getSession } from '@/lib/services/auth'
@@ -26,22 +25,6 @@ export async function login(credentials: LoginCredentials) {
     const response = await authApi.login(credentials.email, credentials.password, credentials.role)
     
     if (response.success) {
-      // Set the auth token in a cookie
-      cookies().set('auth-token', response.access, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-        path: '/',
-      })
-      
-      // Set the refresh token in a cookie
-      cookies().set('refresh-token', response.refresh, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        path: '/',
-      })
-      
       return {
         success: true,
         user: response.user
@@ -60,22 +43,6 @@ export async function signup(data: SignupData) {
     const response = await authApi.signup(data)
     
     if (response.success) {
-      // Set the auth token in a cookie
-      cookies().set('auth-token', response.access, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-        path: '/',
-      })
-      
-      // Set the refresh token in a cookie
-      cookies().set('refresh-token', response.refresh, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        path: '/',
-      })
-      
       return {
         success: true,
         user: response.user
@@ -137,12 +104,6 @@ export async function getRedirectPathForRole(role: UserRole, clinicId?: string, 
 export async function logout() {
   try {
     await authApi.logout()
-    
-    // Clear the auth cookie
-    cookies().delete('auth-token')
-    // Clear the refresh token cookie
-    cookies().delete('refresh-token')
-    
     return { success: true }
   } catch (error) {
     console.error("Error during logout:", error)
@@ -165,10 +126,8 @@ export async function getCurrentUser(token?: string) {
   }
 }
 
-export async function refreshToken() {
+export async function refreshToken(refreshToken: string) {
   try {
-    const refreshToken = cookies().get('refresh-token')?.value
-    
     if (!refreshToken) {
       return { success: false, error: 'No refresh token found' }
     }
@@ -178,14 +137,6 @@ export async function refreshToken() {
     if (!response.success) {
       return { success: false, error: 'Failed to refresh token' }
     }
-    
-    // Set the new access token in a cookie
-    cookies().set('auth-token', response.access, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/',
-    })
     
     return { success: true }
   } catch (error) {
