@@ -39,15 +39,7 @@ export async function login(credentials: LoginCredentials) {
 
 export async function signup(data: SignupData) {
   try {
-    const response = await authApi.signup({
-      email: data.email,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      phone: data.phone,
-      address: data.address || "",
-      profile_image: "https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg",
-      password: data.password,
-    })
+    const response = await authApi.signup(data)
     
     if (response.success) {
       return {

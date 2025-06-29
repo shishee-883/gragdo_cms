@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       password,
       address,
       profile_image
+      
     });
 
     if (!result.success) {
