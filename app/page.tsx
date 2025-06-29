@@ -1,32 +1,14 @@
 import { redirect } from 'next/navigation'
 import { getUserProfile } from "@/lib/actions/profile"
 import { getRedirectPathForRole, getCurrentUser } from "@/lib/actions/auth"
-import { cookies } from 'next/headers'
 
 // Force dynamic rendering to ensure request context is available
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   try {
-    // Get the auth token from cookies in the server component
-    let token: string | undefined
-    
-    try {
-      const cookieStore = cookies()
-      token = cookieStore.get('auth-token')?.value
-    } catch (cookieError) {
-      // If cookies() fails due to request scope issues, treat as no token
-      console.warn('Failed to access cookies:', cookieError)
-      token = undefined
-    }
-    
-    // If no token, redirect to login
-    if (!token) {
-      redirect('/login')
-    }
-    
-    // Get current user using the token
-    const currentUser = await getCurrentUser(token)
+    // Get current user - this function should handle authentication internally
+    const currentUser = await getCurrentUser()
     
     // If no user, redirect to login
     if (!currentUser) {
