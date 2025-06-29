@@ -195,15 +195,19 @@ export const authApi = {
     role: string;
     clinicId?: string;
     password: string;
+    address?: string;
+    profile_image?: string;
   }) {
     return apiClient.post('/auth/signup/', {
       email: data.email,
-      name: `${data.firstName} ${data.lastName}`,
+      first_name: data.firstName,
+      last_name: data.lastName,
       phone: data.phone,
+      address: data.address || "",
+      profile_image: data.profile_image || "",
       role: data.role,
       clinic: data.clinicId,
       password: data.password,
-      confirm_password: data.password
     });
   },
   

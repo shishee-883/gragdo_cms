@@ -4,7 +4,7 @@ import { signup } from '@/lib/actions/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, phone, role, clinicId, password } = body;
+    const { firstName, lastName, email, phone, role, clinicId, password, address, profile_image } = body;
 
     if (!firstName || !lastName || !email || !phone || !role || !password) {
       return NextResponse.json(
@@ -20,7 +20,9 @@ export async function POST(request: NextRequest) {
       phone,
       role,
       clinicId,
-      password
+      password,
+      address,
+      profile_image
     });
 
     if (!result.success) {
