@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDoctors, createDoctor } from '@/lib/actions/doctors';
-import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,18 +24,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, specialization, qualification, experience, consultationFee, clinicId } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    const { name, email, phone, specialization, qualification, experience, consultationFee, clinicId, createdById } = body;
 
     if (!name || !phone || !specialization || !clinicId) {
       return NextResponse.json(
@@ -54,7 +42,7 @@ export async function POST(request: NextRequest) {
       experience,
       consultationFee,
       clinicId,
-      createdById: token // Using token as createdById for now
+      createdById: createdById || 'unknown'
     });
 
     if (!result.success) {

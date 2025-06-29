@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMedicines, createMedicineRecord } from '@/lib/actions/medicines';
-import { cookies } from 'next/headers';
 import { MedicineType } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
@@ -31,19 +30,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       name, manufacturer, batchNumber, type, dosage, 
-      manufacturedDate, expiryDate, price, stock, reorderLevel, clinicId 
+      manufacturedDate, expiryDate, price, stock, reorderLevel, clinicId, createdById
     } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
 
     if (!name || !manufacturer || !batchNumber || !type || !dosage || 
         !manufacturedDate || !expiryDate || price === undefined || 
@@ -66,7 +54,7 @@ export async function POST(request: NextRequest) {
       stock,
       reorderLevel: reorderLevel || 10,
       clinicId,
-      createdById: token // Using token as createdById for now
+      createdById: createdById || 'unknown'
     });
 
     if (!result.success) {

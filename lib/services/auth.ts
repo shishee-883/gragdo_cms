@@ -45,7 +45,6 @@ export async function refreshAccessToken(refreshToken: string): Promise<string |
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ refresh: refreshToken }),
-      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -71,7 +70,6 @@ export async function verifyEmail(token: string): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ token }),
-      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -100,7 +98,6 @@ export async function changePassword(currentPassword: string, newPassword: strin
         currentPassword, 
         newPassword 
       }),
-      credentials: 'include',
     });
     
     const data = await response.json();

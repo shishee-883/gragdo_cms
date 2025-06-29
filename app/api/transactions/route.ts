@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTransactions, createTransactionRecord } from '@/lib/actions/transactions';
-import { cookies } from 'next/headers';
 import { TransactionType, PaymentMethod, PaymentStatus } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
@@ -30,19 +29,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       amount, type, description, paymentMethod, paymentStatus,
-      invoiceId, appointmentId, patientId, doctorId, clinicId, document
+      invoiceId, appointmentId, patientId, doctorId, clinicId, document, createdById
     } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
 
     if (amount === undefined || !type || !description || !paymentMethod || !paymentStatus || !clinicId) {
       return NextResponse.json(
@@ -62,7 +50,7 @@ export async function POST(request: NextRequest) {
       patientId,
       doctorId,
       clinicId,
-      createdById: token, // Using token as createdById for now
+      createdById: createdById || 'unknown',
       document
     });
 
