@@ -45,7 +45,11 @@ export function ChangePasswordForm() {
     setError("")
     
     try {
-      const result = await changePassword(data.currentPassword, data.newPassword)
+      const result = await changePassword(
+        data.currentPassword, 
+        data.newPassword, 
+        data.confirmPassword
+      )
       
       if (result.success) {
         setSuccess(result.message || "Password changed successfully")

@@ -25,12 +25,21 @@ export function ForgotPasswordForm() {
     setError("")
     
     try {
-      const result = await forgotPassword(email)
+      const response = await fetch('/api/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email }),
+      });
       
-      if (result.success) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         setSuccess(true)
       } else {
-        setError(result.error || "Password reset failed")
+        setError(data.error || "Password reset failed")
       }
     } catch (error) {
       setError("An unexpected error occurred")

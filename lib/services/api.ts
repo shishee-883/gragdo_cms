@@ -30,7 +30,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', 
+        credentials: 'include',
         cache: 'no-store', // Disable caching
       });
       
@@ -58,7 +58,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', 
+        credentials: 'include',
         body: JSON.stringify(data),
         cache: 'no-store', // Disable caching
       });
@@ -87,7 +87,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', 
+        credentials: 'include',
         body: JSON.stringify(data),
         cache: 'no-store', // Disable caching
       });
@@ -115,7 +115,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', 
+        credentials: 'include',
         cache: 'no-store', // Disable caching
       });
       
@@ -150,6 +150,7 @@ export const apiClient = {
       
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'POST',
+        credentials: 'include',
         body: formData,
         cache: 'no-store', // Disable caching
       });
@@ -212,19 +213,23 @@ export const authApi = {
    * @returns Password reset request response
    */
   async forgotPassword(email: string) {
-    return apiClient.post('/auth/forgot-password/', { email });
+    return apiClient.post('/forgot-password/', { email });
   },
   
   /**
    * Reset a password
+   * @param uidb64 User ID base64
    * @param token Reset token
    * @param newPassword New password
+   * @param confirmPassword Confirm new password
    * @returns Password reset response
    */
-  async resetPassword(token: string, newPassword: string) {
-    return apiClient.post('/auth/reset-password/', { 
+  async resetPassword(uidb64: string, token: string, newPassword: string, confirmPassword: string) {
+    return apiClient.post('/reset-password/', { 
+      uidb64, 
       token, 
-      newPassword
+      new_password: newPassword, 
+      confirm_password: confirmPassword 
     });
   },
   
@@ -257,12 +262,14 @@ export const authApi = {
    * Change the user's password
    * @param currentPassword Current password
    * @param newPassword New password
+   * @param confirmPassword Confirm new password
    * @returns Password change response
    */
-  async changePassword(currentPassword: string, newPassword: string) {
-    return apiClient.post('/auth/change-password/', {
-      currentPassword,
-      newPassword
+  async updatePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+    return apiClient.post('/update-password/', {
+      current_password: currentPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword
     });
   },
   
@@ -274,6 +281,15 @@ export const authApi = {
    */
   async verifyEmail(uidb64: string, token: string) {
     return apiClient.get(`/verify/${uidb64}/${token}/`);
+  },
+  
+  /**
+   * Resend verification email
+   * @param email User email
+   * @returns Resend verification email response
+   */
+  async resendVerificationEmail(email: string) {
+    return apiClient.post('/resend-verification-email/', { email });
   }
 };
 
@@ -446,6 +462,7 @@ export const patientsApi = {
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/patients/documents/`, {
       method: 'POST',
+      credentials: 'include',
       body: formData,
     });
     
@@ -547,6 +564,7 @@ export const prescriptionsApi = {
     
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/prescriptions/${id}/upload/`, {
       method: 'POST',
+      credentials: 'include',
       body: formData,
     });
     

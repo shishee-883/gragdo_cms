@@ -2,7 +2,7 @@
 
 import { UserRole } from "@/lib/types"
 import { authApi } from '@/lib/services/api'
-import { changePassword as changePasswordService, verifyEmail as verifyEmailService } from '@/lib/services/auth'
+import { changePassword as changePasswordService } from '@/lib/services/auth'
 
 interface LoginCredentials {
   email: string
@@ -71,14 +71,28 @@ export async function forgotPassword(email: string) {
   }
 }
 
-export async function resetPassword(token: string, newPassword: string) {
+export async function resetPassword(uidb64: string, token: string, newPassword: string, confirmPassword: string) {
   try {
-    const response = await authApi.resetPassword(token, newPassword)
+    const response = await fetch('/api/reset-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ 
+        uidb64, 
+        token, 
+        new_password: newPassword, 
+        confirm_password: confirmPassword 
+      }),
+    });
+    
+    const data = await response.json();
     
     return { 
-      success: response.success, 
-      message: response.message,
-      error: response.error 
+      success: response.ok && data.success, 
+      message: data.message || (response.ok ? 'Password reset successfully' : 'Failed to reset password'),
+      error: !response.ok ? (data.error || 'Failed to reset password') : undefined
     }
   } catch (error) {
     console.error("Error during password reset:", error)
@@ -145,9 +159,28 @@ export async function refreshToken(refreshToken: string) {
   }
 }
 
-export async function changePassword(currentPassword: string, newPassword: string) {
+export async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
   try {
-    return await changePasswordService(currentPassword, newPassword)
+    const response = await fetch('/api/update-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ 
+        current_password: currentPassword, 
+        new_password: newPassword, 
+        confirm_password: confirmPassword 
+      }),
+    });
+    
+    const data = await response.json();
+    
+    return { 
+      success: response.ok && data.success, 
+      message: data.message || (response.ok ? 'Password updated successfully' : 'Failed to update password'),
+      error: !response.ok ? (data.error || 'Failed to update password') : undefined
+    }
   } catch (error) {
     console.error('Error changing password:', error)
     return { success: false, error: 'An error occurred while changing password' }
@@ -161,6 +194,7 @@ export async function verifyEmail(uidb64: string, token: string) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     })
     
     const data = await response.json()
@@ -173,5 +207,20 @@ export async function verifyEmail(uidb64: string, token: string) {
   } catch (error) {
     console.error('Error verifying email:', error)
     return { success: false, error: 'An error occurred while verifying email' }
+  }
+}
+
+export async function resendVerificationEmail(email: string) {
+  try {
+    const response = await authApi.resendVerificationEmail(email)
+    
+    return { 
+      success: response.success, 
+      message: response.message,
+      error: response.error 
+    }
+  } catch (error) {
+    console.error('Error resending verification email:', error)
+    return { success: false, error: 'An error occurred while resending verification email' }
   }
 }
