@@ -208,7 +208,7 @@ export const authApi = {
    * @returns Password reset request response
    */
   async forgotPassword(email: string) {
-    return apiClient.post('/auth/forgot-password/', { email });
+    return apiClient.post('/forgot-password/', { email });
   },
   
   /**
