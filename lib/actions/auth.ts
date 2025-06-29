@@ -78,6 +78,7 @@ export async function resetPassword(uidb64: string, token: string, newPassword: 
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ 
         uidb64, 
         token, 
@@ -165,6 +166,7 @@ export async function changePassword(currentPassword: string, newPassword: strin
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ 
         current_password: currentPassword, 
         new_password: newPassword, 
@@ -192,6 +194,7 @@ export async function verifyEmail(uidb64: string, token: string) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     })
     
     const data = await response.json()

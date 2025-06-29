@@ -38,6 +38,7 @@ export default function VerifyEmailPage() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         })
 
         const data = await response.json()
@@ -81,6 +82,7 @@ export default function VerifyEmailPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email }),
       })
       
@@ -226,4 +228,3 @@ export default function VerifyEmailPage() {
       </div>
     </div>
   )
-}

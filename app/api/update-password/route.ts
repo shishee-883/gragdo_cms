@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
         'Authorization': request.headers.get('Authorization') || '',
       },
+      credentials: 'include',
       body: JSON.stringify({ 
         current_password, 
         new_password, 
