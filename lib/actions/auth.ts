@@ -15,7 +15,6 @@ interface SignupData {
   lastName: string
   email: string
   phone: string
-  role: UserRole
   password: string
   address?: string
   profile_image?: string
