@@ -97,7 +97,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('digigo_user', JSON.stringify(user))
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call the logout API endpoint
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (error) {
+      console.error('Error during logout:', error)
+    }
+    
+    // Clear session state regardless of API response
     setUser(null)
     setStatus('unauthenticated')
     localStorage.removeItem('digigo_user')

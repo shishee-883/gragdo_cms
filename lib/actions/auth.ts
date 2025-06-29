@@ -175,7 +175,7 @@ export async function refreshToken() {
     
     const response = await authApi.refreshToken(refreshToken)
     
-    if (!response.access) {
+    if (!response.success) {
       return { success: false, error: 'Failed to refresh token' }
     }
     
