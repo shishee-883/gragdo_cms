@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyToken } from './lib/services/auth'
 
 export async function middleware(request: NextRequest) {
   // Define public paths that don't require authentication
