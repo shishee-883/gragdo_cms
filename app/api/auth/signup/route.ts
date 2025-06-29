@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       lastName,
       email,
       phone,
-      role: 'SUPER_ADMIN', // Always set role to SUPER_ADMIN
       password,
       address,
       profile_image
