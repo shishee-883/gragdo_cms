@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClinics, createClinic, updateClinic, deleteClinic } from '@/lib/actions/clinics';
-import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
@@ -22,18 +21,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, address, phone, email, description } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    const { name, address, phone, email, description, createdById } = body;
 
     if (!name || !address || !phone) {
       return NextResponse.json(
@@ -48,7 +36,7 @@ export async function POST(request: NextRequest) {
       phone,
       email,
       description,
-      createdById: token // Using token as createdById for now
+      createdById: createdById || 'unknown'
     });
 
     if (!result.success) {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrescriptions, createPrescriptionRecord } from '@/lib/actions/prescriptions';
-import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,19 +28,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       patientId, doctorId, clinicId, appointmentId, diagnosis, 
-      medications, instructions, followUpDate, document 
+      medications, instructions, followUpDate, document, createdById
     } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
 
     if (!patientId || !doctorId || !clinicId || !appointmentId || !diagnosis || !medications) {
       return NextResponse.json(
@@ -60,7 +48,7 @@ export async function POST(request: NextRequest) {
       instructions,
       followUpDate,
       document,
-      createdById: token // Using token as createdById for now
+      createdById: createdById || 'unknown'
     });
 
     if (!result.success) {

@@ -1,24 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserProfile, updateUserProfile } from '@/lib/actions/profile';
-import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
     // Get userId from query params if provided
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId') || undefined;
 
-    if (!token && !userId) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
+        { success: false, error: 'User ID is required' },
+        { status: 400 }
       );
     }
 
-    const profile = await getUserProfile(userId, token);
+    const profile = await getUserProfile(userId);
 
     if (!profile) {
       return NextResponse.json(

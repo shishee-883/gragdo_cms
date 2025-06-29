@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getInvoices, createInvoiceRecord } from '@/lib/actions/billing';
-import { cookies } from 'next/headers';
 import { InvoiceItemType, InvoiceStatus } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
@@ -29,19 +28,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { 
-      patientId, clinicId, appointmentId, items, discount, tax, dueDate, notes, document 
+      patientId, clinicId, appointmentId, items, discount, tax, dueDate, notes, document, createdById
     } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
 
     if (!patientId || !clinicId || !items || items.length === 0 || 
         discount === undefined || tax === undefined || !dueDate) {
@@ -77,7 +65,7 @@ export async function POST(request: NextRequest) {
       tax,
       dueDate,
       notes,
-      createdById: token, // Using token as createdById for now
+      createdById: createdById || 'unknown',
       document
     });
 

@@ -6,13 +6,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { signup } from "@/lib/actions/auth"
 import { UserRole } from "@/lib/types"
@@ -26,7 +19,6 @@ export function SignupForm() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [role, setRole] = useState<UserRole | "">("")
   const [clinicId, setClinicId] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -40,7 +32,7 @@ export function SignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!firstName || !lastName || !email || !phone || !role || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
       setError("Please fill in all required fields")
       return
     }
@@ -55,12 +47,6 @@ export function SignupForm() {
       return
     }
     
-    // For roles that require a clinic ID
-    if ((role === "ADMIN" || role === "STAFF" || role === "DOCTOR") && !clinicId) {
-      setError("Clinic ID is required for this role")
-      return
-    }
-    
     setIsLoading(true)
     setError("")
     
@@ -70,7 +56,7 @@ export function SignupForm() {
         lastName,
         email,
         phone,
-        role: role as UserRole,
+        role: UserRole.SUPER_ADMIN, // Always set role to SUPER_ADMIN
         clinicId: clinicId || undefined,
         password
       })
@@ -173,33 +159,15 @@ export function SignupForm() {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="role">Role</Label>
-        <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-          <SelectTrigger className="h-12 rounded-lg">
-            <SelectValue placeholder="Select Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-            <SelectItem value="ADMIN">Admin</SelectItem>
-            <SelectItem value="STAFF">Staff</SelectItem>
-            <SelectItem value="DOCTOR">Doctor</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="clinicId">Clinic ID (Optional)</Label>
+        <Input
+          id="clinicId"
+          placeholder="Clinic ID"
+          className="h-12 rounded-lg"
+          value={clinicId}
+          onChange={(e) => setClinicId(e.target.value)}
+        />
       </div>
-      
-      {(role === "ADMIN" || role === "STAFF" || role === "DOCTOR") && (
-        <div className="space-y-2">
-          <Label htmlFor="clinicId">Clinic ID</Label>
-          <Input
-            id="clinicId"
-            placeholder="Clinic ID"
-            className="h-12 rounded-lg"
-            value={clinicId}
-            onChange={(e) => setClinicId(e.target.value)}
-            required
-          />
-        </div>
-      )}
       
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>

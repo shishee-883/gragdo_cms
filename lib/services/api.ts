@@ -30,7 +30,6 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Include cookies
         cache: 'no-store', // Disable caching
       });
       
@@ -59,7 +58,6 @@ export const apiClient = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-        credentials: 'include', // Include cookies
         cache: 'no-store', // Disable caching
       });
       
@@ -88,7 +86,6 @@ export const apiClient = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-        credentials: 'include', // Include cookies
         cache: 'no-store', // Disable caching
       });
       
@@ -115,7 +112,6 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Include cookies
         cache: 'no-store', // Disable caching
       });
       
@@ -151,7 +147,6 @@ export const apiClient = {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'POST',
         body: formData,
-        credentials: 'include', // Include cookies
         cache: 'no-store', // Disable caching
       });
       
@@ -269,11 +264,12 @@ export const authApi = {
   
   /**
    * Verify the user's email
+   * @param uidb64 User ID base64
    * @param token Verification token
    * @returns Email verification response
    */
-  async verifyEmail(token: string) {
-    return apiClient.post('/auth/verify-email/', { token });
+  async verifyEmail(uidb64: string, token: string) {
+    return apiClient.get(`/verify/${uidb64}/${token}/`);
   }
 };
 
@@ -447,7 +443,6 @@ export const patientsApi = {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/patients/documents/`, {
       method: 'POST',
       body: formData,
-      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -549,7 +544,6 @@ export const prescriptionsApi = {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/prescriptions/${id}/upload/`, {
       method: 'POST',
       body: formData,
-      credentials: 'include',
     });
     
     if (!response.ok) {

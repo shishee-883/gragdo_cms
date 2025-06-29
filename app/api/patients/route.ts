@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPatients, createPatientRecord } from '@/lib/actions/patients';
-import { cookies } from 'next/headers';
 import { Gender } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
@@ -29,19 +28,8 @@ export async function POST(request: NextRequest) {
     const { 
       firstName, lastName, email, phone, gender, dateOfBirth, 
       bloodGroup, address, city, state, postalCode, 
-      medicalHistory, allergies, emergencyContact, clinicId 
+      medicalHistory, allergies, emergencyContact, clinicId, createdById, documents
     } = body;
-
-    // Get the current user ID from the token
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
 
     if (!firstName || !lastName || !phone || !gender || !dateOfBirth || !clinicId) {
       return NextResponse.json(
@@ -66,8 +54,8 @@ export async function POST(request: NextRequest) {
       allergies,
       emergencyContact,
       clinicId,
-      createdById: token, // Using token as createdById for now
-      documents: []
+      createdById: createdById || 'unknown',
+      documents: documents || []
     });
 
     if (!result.success) {

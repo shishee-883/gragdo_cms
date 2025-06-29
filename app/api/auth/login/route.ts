@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { login } from '@/lib/actions/auth';
-import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +21,6 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-
-    // Note: The cookie is already set in the login function
-    // We just need to return the user data
 
     return NextResponse.json({
       success: true,

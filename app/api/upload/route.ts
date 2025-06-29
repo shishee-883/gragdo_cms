@@ -1,20 +1,8 @@
-// app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { uploadFile, generateFileKey } from '@/lib/services/s3';
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the auth token to ensure the user is authenticated
-    const token = cookies().get('auth-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-    
     // Parse the form data
     const formData = await request.formData();
     const file = formData.get('file') as File;
