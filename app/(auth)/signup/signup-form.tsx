@@ -58,7 +58,9 @@ export function SignupForm() {
         phone,
         role: UserRole.SUPER_ADMIN, // Always set role to SUPER_ADMIN
         clinicId: clinicId || undefined,
-        password
+        password,
+        address: "",
+        profile_image: "https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg"
       })
       
       if (result.success) {

@@ -18,6 +18,8 @@ interface SignupData {
   role: UserRole
   clinicId?: string
   password: string
+  address?: string
+  profile_image?: string
 }
 
 export async function login(credentials: LoginCredentials) {
