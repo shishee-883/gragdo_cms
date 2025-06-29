@@ -30,6 +30,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies in the request
         cache: 'no-store', // Disable caching
       });
       
@@ -58,6 +59,7 @@ export const apiClient = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+        credentials: 'include', // Include cookies in the request
         cache: 'no-store', // Disable caching
       });
       
@@ -86,6 +88,7 @@ export const apiClient = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+        credentials: 'include', // Include cookies in the request
         cache: 'no-store', // Disable caching
       });
       
@@ -112,6 +115,7 @@ export const apiClient = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies in the request
         cache: 'no-store', // Disable caching
       });
       
@@ -147,6 +151,7 @@ export const apiClient = {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Include cookies in the request
         cache: 'no-store', // Disable caching
       });
       
@@ -442,6 +447,7 @@ export const patientsApi = {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/patients/documents/`, {
       method: 'POST',
       body: formData,
+      credentials: 'include', // Include cookies in the request
     });
     
     if (!response.ok) {
@@ -543,6 +549,7 @@ export const prescriptionsApi = {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/prescriptions/${id}/upload/`, {
       method: 'POST',
       body: formData,
+      credentials: 'include', // Include cookies in the request
     });
     
     if (!response.ok) {

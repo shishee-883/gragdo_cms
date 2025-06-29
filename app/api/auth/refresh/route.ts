@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { refreshAccessToken } from '@/lib/services/auth';
+import { authApi } from '@/lib/services/api';
 
 export async function POST(request: NextRequest) {
   try {
-    const refreshToken = cookies().get('refresh-token')?.value;
+    const { refreshToken } = await request.json();
     
     if (!refreshToken) {
       return NextResponse.json(
@@ -13,22 +12,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const newToken = await refreshAccessToken(refreshToken);
+    const response = await authApi.refreshToken(refreshToken);
     
-    if (!newToken) {
+    if (!response.success) {
       return NextResponse.json(
         { success: false, error: 'Failed to refresh token' },
         { status: 401 }
       );
     }
-    
-    // Set the new token in cookies
-    cookies().set('auth-token', newToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/',
-    });
     
     return NextResponse.json({
       success: true,
