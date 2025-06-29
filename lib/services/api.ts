@@ -192,7 +192,6 @@ export const authApi = {
     lastName: string;
     email: string;
     phone: string;
-    role: string;
     password: string;
     address?: string;
     profile_image?: string;
