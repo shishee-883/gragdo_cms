@@ -2,7 +2,6 @@
 
 import { UserRole } from "@/lib/types"
 import { authApi } from '@/lib/services/api'
-import { changePassword as changePasswordService } from '@/lib/services/auth'
 
 interface LoginCredentials {
   email: string

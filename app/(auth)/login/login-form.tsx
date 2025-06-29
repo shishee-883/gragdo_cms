@@ -61,7 +61,7 @@ export function LoginForm() {
         if (currentUser) {
           // Redirect based on role
           if (currentUser.role === "SUPER_ADMIN") {
-            router.push("/clinics")
+            router.push("/profile")
           } else if (currentUser.role === "ADMIN") {
             if (currentUser.clinicId) {
               router.push(`/${currentUser.clinicId}/admin/${currentUser.id}/dashboard`)

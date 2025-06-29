@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { signup, getCurrentUser } from "@/lib/actions/auth"
-import { UserRole } from "@/lib/types"
+import { signup} from "@/lib/actions/auth"
 import { Eye, EyeOff } from "lucide-react"
 
 
