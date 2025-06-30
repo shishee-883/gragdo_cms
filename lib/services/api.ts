@@ -826,6 +826,7 @@ export const billingApi = {
   }
 };
 
+// lib/services/api.ts (updating the usersApi section)
 export const usersApi = {
   async createClinicUser(clinicId: string, data: {
     first_name?: string;
@@ -839,5 +840,22 @@ export const usersApi = {
     return apiClient.post(`/create-clinic-user/${clinicId}/`, data);
   },
   
-  // Add other user-related API methods as needed
+  async getClinicUsers(clinicId: string) {
+    return apiClient.get(`/get-clinic-users/${clinicId}/`);
+  },
+  
+  async updateUser(userId: string, data: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone_number?: string;
+    address?: string;
+    role?: 'admin' | 'doctor' | 'staff';
+  }) {
+    return apiClient.put(`/update-user/${userId}/`, data);
+  },
+  
+  async deleteUser(userId: string, password: string) {
+    return apiClient.delete(`/delete-user/${userId}/`, { password });
+  }
 };
