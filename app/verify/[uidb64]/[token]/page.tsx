@@ -31,9 +31,9 @@ export default function VerifyEmailPage() {
       try {
         const uidb64 = params.uidb64 as string
         const token = params.token as string
-        
+        console.log(token,uidb64)
         // Make API request to verify email
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/verify/${uidb64}/${token}/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/verify-email/?uidb64=${uidb64}&token=${token}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export default function VerifyEmailPage() {
         
         setIsVerifying(false)
         
-        if (response.ok && data.success) {
+        if (data.success) {
           setIsSuccess(true)
           // Redirect to login after 3 seconds
           setTimeout(() => {
@@ -77,7 +77,7 @@ export default function VerifyEmailPage() {
     setResendSuccess(false)
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/resend-verification-email/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/resend-verification-email/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

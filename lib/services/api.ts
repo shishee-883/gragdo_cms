@@ -201,7 +201,7 @@ export const authApi = {
       first_name: data.firstName,
       last_name: data.lastName,
       phone: data.phone,
-      address: data.address || "",
+      address: "data.address" ,
       profile_image: data.profile_image || "",
       password: data.password,
     });
