@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select"
 import { Trash2 } from "lucide-react"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-import { useSession } from "@/components/auth/session-provider"
 import { createMedicineRecord, updateMedicineRecord } from "@/lib/actions/medicines"
 
 const medicineSchema = z.object({

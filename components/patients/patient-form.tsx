@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-import { useSession } from "@/components/auth/session-provider"
 import { createPatientRecord, updatePatientRecord } from "@/lib/actions/patients"
 
 const patientSchema = z.object({

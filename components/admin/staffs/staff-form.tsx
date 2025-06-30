@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-import { useSession } from "@/components/auth/session-provider"
 
 const staffSchema = z.object({
   firstName: z.string().min(1, "First name is required"),

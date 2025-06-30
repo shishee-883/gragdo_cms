@@ -17,7 +17,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { login } from "@/lib/actions/auth"
 import { UserRole } from "@/lib/types"
 import { Eye, EyeOff } from "lucide-react"
-import { useSession } from "@/components/auth/session-provider"
 
 export function LoginForm() {
   const router = useRouter()

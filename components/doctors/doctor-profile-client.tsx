@@ -43,7 +43,6 @@ import {
 } from "lucide-react"
 import { formatTime } from "@/lib/utils"
 import { updateDoctor } from "@/lib/actions/doctors"
-import { useSession } from "@/components/auth/session-provider"
 
 interface Doctor {
   id: string

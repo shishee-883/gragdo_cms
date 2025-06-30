@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-import { useSession } from "@/components/auth/session-provider"
 import { createPrescriptionRecord } from "@/lib/actions/prescriptions"
 
 const prescriptionSchema = z.object({

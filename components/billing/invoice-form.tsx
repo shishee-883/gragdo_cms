@@ -19,7 +19,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2, Calendar } from "lucide-react"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-import { useSession } from "@/components/auth/session-provider"
 import { createInvoiceRecord } from "@/lib/actions/billing"
 
 const invoiceSchema = z.object({

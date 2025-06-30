@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { createTreatment, updateTreatment } from "@/lib/actions/treatments"
-import { useSession } from "@/components/auth/session-provider"
 
 const treatmentSchema = z.object({
   treatmentName: z.string().min(1, "Treatment name is required"),

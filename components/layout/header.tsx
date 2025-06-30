@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { formatDate } from "@/lib/utils"
 import { PlanDetailsModal } from "@/components/layout/plan-details-modal"
 import Link from "next/link"
-import { useSession } from "@/components/auth/session-provider"
 import {
   DropdownMenu,
   DropdownMenuContent,

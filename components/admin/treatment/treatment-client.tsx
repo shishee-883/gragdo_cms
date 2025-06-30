@@ -24,7 +24,6 @@ import {
 import { Plus, Search, PenSquare, Trash2, Filter } from "lucide-react"
 import { TreatmentForm } from "./treatment-form"
 import { deleteTreatment, createTreatment, updateTreatment } from "@/lib/actions/treatments"
-import { useSession } from "@/components/auth/session-provider"
 
 interface Treatment {
   id: string
