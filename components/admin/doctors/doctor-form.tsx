@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FileUpload, FilePreview } from "@/components/shared/file-upload"
-import { getCurrentUser } from "@/lib/actions/auth"
 import { createDoctor, updateDoctor } from "@/lib/actions/doctors"
 
 const doctorSchema = z.object({
@@ -90,15 +89,6 @@ export function DoctorForm({
   })
 
   // Fetch current user if not provided
-  useState(() => {
-    async function fetchUser() {
-      if (!user) {
-        const currentUser = await getCurrentUser()
-        setUser(currentUser)
-      }
-    }
-    fetchUser()
-  })
 
   const handleProfileImageUpload = (url: string, file: File) => {
     setProfileImage({ name: file.name, url })
@@ -116,7 +106,7 @@ export function DoctorForm({
     setIsSubmitting(true)
     
     try {
-      const currentUser = user || await getCurrentUser()
+      const currentUser = user 
       const clinicId = currentUser?.clinicId
       
       if (!clinicId) {
