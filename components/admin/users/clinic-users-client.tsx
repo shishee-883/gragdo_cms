@@ -1,10 +1,11 @@
+// components/admin/users/clinic-users-client.tsx
 "use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -20,10 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Plus, Search, PenSquare, Trash2 } from "lucide-react"
+import { Plus, Search, PenSquare, Trash2, AlertCircle } from "lucide-react"
 import { ClinicUserForm } from "./clinic-user-form"
-import { createClinicUser } from "@/lib/actions/users"
+import { createClinicUser, getClinicUsers, updateUser, deleteUser } from "@/lib/actions/users"
 import { getCurrentUser } from "@/lib/actions/auth"
+import { Label } from "@/components/ui/label"
 
 interface ClinicUser {
   id: string
@@ -46,7 +48,14 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
   const [recordsPerPage, setRecordsPerPage] = useState("10")
   const [currentPage, setCurrentPage] = useState(1)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<ClinicUser | null>(null)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const [deletePassword, setDeletePassword] = useState("")
+  const [deleteError, setDeleteError] = useState("")
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Fetch current user
   useEffect(() => {
@@ -56,6 +65,28 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
     }
     fetchUser()
   }, [])
+
+  // Fetch clinic users
+  useEffect(() => {
+    async function fetchClinicUsers() {
+      try {
+        setIsLoading(true)
+        const result = await getClinicUsers(clinicId)
+        if (result.success) {
+          setUsers(result.users)
+          setFilteredUsers(result.users)
+        }
+      } catch (error) {
+        console.error("Error fetching clinic users:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (clinicId) {
+      fetchClinicUsers()
+    }
+  }, [clinicId])
 
   useEffect(() => {
     // Filter users based on search term
@@ -103,9 +134,71 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
     }
   }
 
+  const handleEditSubmit = async (data: any) => {
+    if (!editingUser) return
+
+    try {
+      const result = await updateUser(editingUser.id, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        address: data.address,
+        role: data.role
+      })
+
+      if (result.success) {
+        // Update the user in the list
+        const updatedUser = {
+          ...editingUser,
+          name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          role: data.role
+        }
+        
+        setUsers(prev => prev.map(user => user.id === editingUser.id ? updatedUser : user))
+        setIsEditFormOpen(false)
+        setEditingUser(null)
+      } else {
+        console.error("Failed to update user:", result.error)
+        // You could show an error message here
+      }
+    } catch (error) {
+      console.error("Error updating user:", error)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingUserId || !deletePassword) return
+
+    try {
+      const result = await deleteUser(deletingUserId, deletePassword)
+
+      if (result.success) {
+        // Remove the user from the list
+        setUsers(prev => prev.filter(user => user.id !== deletingUserId))
+        setIsDeleteDialogOpen(false)
+        setDeletingUserId(null)
+        setDeletePassword("")
+        setDeleteError("")
+      } else {
+        setDeleteError(result.error || "Failed to delete user")
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error)
+      setDeleteError("An unexpected error occurred")
+    }
+  }
+
+  const handleEdit = (user: ClinicUser) => {
+    setEditingUser(user)
+    setIsEditFormOpen(true)
+  }
+
   const handleDelete = (id: string) => {
-    // In a real app, you would call an API to delete the user
-    setUsers(prev => prev.filter(user => user.id !== id))
+    setDeletingUserId(id)
+    setIsDeleteDialogOpen(true)
   }
 
   // Pagination logic
@@ -123,6 +216,15 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
   const handleRecordsPerPageChange = (value: string) => {
     setRecordsPerPage(value)
     setCurrentPage(1)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7165e1] mx-auto"></div>
+        <p className="mt-4 text-lg text-gray-500 font-sf-pro">Loading users...</p>
+      </div>
+    )
   }
 
   return (
@@ -150,6 +252,85 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
               clinicId={clinicId}
               currentUser={currentUser}
             />
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit User Dialog */}
+        <Dialog open={isEditFormOpen} onOpenChange={setIsEditFormOpen}>
+          <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Clinic User</DialogTitle>
+            </DialogHeader>
+            {editingUser && (
+              <ClinicUserForm
+                onSubmit={handleEditSubmit}
+                onCancel={() => {
+                  setIsEditFormOpen(false)
+                  setEditingUser(null)
+                }}
+                clinicId={clinicId}
+                currentUser={currentUser}
+                initialData={{
+                  firstName: editingUser.name.split(' ')[0] || '',
+                  lastName: editingUser.name.split(' ').slice(1).join(' ') || '',
+                  email: editingUser.email,
+                  phoneNumber: editingUser.phoneNumber,
+                  role: editingUser.role as any,
+                  // Password is not included for editing
+                }}
+                isEditing={true}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent className="w-[95vw] max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete User</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. Please enter your password to confirm.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {deleteError && (
+                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                  {deleteError}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="password">Your Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDeleteDialogOpen(false)
+                    setDeletingUserId(null)
+                    setDeletePassword("")
+                    setDeleteError("")
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteConfirm}
+                  disabled={!deletePassword}
+                >
+                  Delete User
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -221,8 +402,12 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
                     </div>
                   </div>
 
-                  <div className="flex justify-end mt-4">
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(user.id)}>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(user)}>
+                      <PenSquare className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(user.id)}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete
                     </Button>
@@ -266,9 +451,14 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
                       {new Date(user.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
-                        <Trash2 className="w-5 h-5 text-red-500" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                          <PenSquare className="w-5 h-5 text-[#7165e1]" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
+                          <Trash2 className="w-5 h-5 text-red-500" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

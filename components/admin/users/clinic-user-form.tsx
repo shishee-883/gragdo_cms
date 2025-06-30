@@ -1,3 +1,4 @@
+// components/admin/users/clinic-user-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/select"
 import { Eye, EyeOff } from "lucide-react"
 
-const clinicUserSchema = z.object({
+const createUserSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   email: z.string().email("Invalid email address"),
@@ -27,20 +28,33 @@ const clinicUserSchema = z.object({
   role: z.enum(["admin", "doctor", "staff"]),
 })
 
-type ClinicUserFormData = z.infer<typeof clinicUserSchema>
+const updateUserSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().email("Invalid email address"),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+  address: z.string().optional(),
+  role: z.enum(["admin", "doctor", "staff"]),
+})
+
+type ClinicUserFormData = z.infer<typeof createUserSchema>
 
 interface ClinicUserFormProps {
   onSubmit: (data: ClinicUserFormData) => void
   onCancel: () => void
   clinicId: string
   currentUser: any
+  initialData?: Partial<ClinicUserFormData>
+  isEditing?: boolean
 }
 
 export function ClinicUserForm({
   onSubmit,
   onCancel,
   clinicId,
-  currentUser
+  currentUser,
+  initialData,
+  isEditing = false
 }: ClinicUserFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -52,8 +66,8 @@ export function ClinicUserForm({
     watch,
     formState: { errors },
   } = useForm<ClinicUserFormData>({
-    resolver: zodResolver(clinicUserSchema),
-    defaultValues: {
+    resolver: zodResolver(isEditing ? updateUserSchema : createUserSchema),
+    defaultValues: initialData || {
       firstName: "",
       lastName: "",
       email: "",
@@ -69,7 +83,7 @@ export function ClinicUserForm({
     try {
       await onSubmit(data)
     } catch (error) {
-      console.error("Error creating clinic user:", error)
+      console.error("Error with clinic user:", error)
     } finally {
       setIsSubmitting(false)
     }
@@ -79,7 +93,7 @@ export function ClinicUserForm({
     <Card className="w-full max-w-4xl mx-auto border-none shadow-none">
       <CardHeader className="pb-6">
         <CardTitle className="text-2xl md:text-3xl font-sf-pro font-semibold text-black">
-          Add Clinic User
+          {isEditing ? "Edit Clinic User" : "Add Clinic User"}
         </CardTitle>
       </CardHeader>
       <CardContent className="px-6 md:px-8">
@@ -169,36 +183,41 @@ export function ClinicUserForm({
 
           {/* Row 4: Password, Role */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-black">
-                Password<span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter Password"
-                  className="h-12 rounded-lg border-gray-300 focus:border-[#7165e1] focus:ring-[#7165e1] pr-10"
-                  {...register("password")}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+            {!isEditing && (
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-black">
+                  Password<span className="text-red-500">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter Password"
+                    className="h-12 rounded-lg border-gray-300 focus:border-[#7165e1] focus:ring-[#7165e1] pr-10"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-xs text-red-500">{errors.password.message}</p>
+                )}
               </div>
-              {errors.password && (
-                <p className="text-xs text-red-500">{errors.password.message}</p>
-              )}
-            </div>
+            )}
 
-            <div className="space-y-2">
+            <div className={`space-y-2 ${isEditing ? 'md:col-span-2' : ''}`}>
               <Label htmlFor="role" className="text-sm font-medium text-black">
                 Role<span className="text-red-500">*</span>
               </Label>
-              <Select onValueChange={(value) => setValue("role", value as "admin" | "doctor" | "staff")}>
+              <Select 
+                defaultValue={initialData?.role || "staff"} 
+                onValueChange={(value) => setValue("role", value as "admin" | "doctor" | "staff")}
+              >
                 <SelectTrigger className="h-12 rounded-lg border-gray-300">
                   <SelectValue placeholder="Select Role" />
                 </SelectTrigger>
@@ -230,7 +249,7 @@ export function ClinicUserForm({
               disabled={isSubmitting}
               className="w-full sm:w-auto h-12 px-8 rounded-lg bg-[#7165e1] hover:bg-[#5f52d1] text-white font-medium"
             >
-              {isSubmitting ? "Creating..." : "Create User"}
+              {isSubmitting ? "Processing..." : isEditing ? "Update User" : "Create User"}
             </Button>
           </div>
         </form>

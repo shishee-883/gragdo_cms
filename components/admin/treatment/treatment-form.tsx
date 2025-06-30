@@ -94,7 +94,7 @@ export function TreatmentForm({
       <CardHeader className="pb-6">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
           <span>Treatments</span>
-          <span className="text-[#7165e1]">></span>
+          <span className="text-[#7165e1]"></span>
           <span className="text-[#7165e1]">Add Treatment</span>
         </div>
         <CardTitle className="text-2xl md:text-3xl font-sf-pro font-semibold text-black">

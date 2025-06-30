@@ -852,10 +852,10 @@ export const usersApi = {
     address?: string;
     role?: 'admin' | 'doctor' | 'staff';
   }) {
-    return apiClient.put(`/update-user/${userId}/`, data);
+    return apiClient.post(`/update-user/${userId}/`,{ data});
   },
   
   async deleteUser(userId: string, password: string) {
-    return apiClient.delete(`/delete-user/${userId}/`, { password });
+    return apiClient.delete(`/delete-user/${userId}/`);
   }
 };

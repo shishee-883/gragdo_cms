@@ -1,6 +1,7 @@
+
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -74,7 +75,7 @@ export function InvoiceForm({
   })
 
   // Fetch current user if not provided
-  useState(() => {
+  useEffect(() => {
     async function fetchUser() {
       if (!currentUser) {
         const fetchedUser = await getCurrentUser()
@@ -82,7 +83,7 @@ export function InvoiceForm({
       }
     }
     fetchUser()
-  })
+  }, [currentUser])
 
   // Mock data for dropdowns
   const mockDoctors = [
