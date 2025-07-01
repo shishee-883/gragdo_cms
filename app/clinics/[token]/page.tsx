@@ -4,10 +4,12 @@ import { getClinics } from "@/lib/actions/clinics"
 import { getUserProfile } from "@/lib/actions/profile"
 import { redirect, useParams } from "next/navigation"
 import { getCurrentUser } from "@/lib/actions/auth"
+import { useAuthToken } from "@/lib/hooks/useAuthToken"
 
 export default async function ClinicsPage(context) {
   try {
-    const {token}=context.params
+    // const {token}=context.params
+    const {token}=useAuthToken();
     // Get the current user
     // const currentUser = await getCurrentUser()
     

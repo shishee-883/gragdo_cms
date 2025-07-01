@@ -43,10 +43,7 @@ export async function signup(data: SignupData) {
     const response = await authApi.signup(data)
     
     if (response.success) {
-      return {
-        success: true,
-        user: response.user
-      }
+      return response
     } else {
       return { success: false, error: response.error || "Signup failed" }
     }
