@@ -157,9 +157,9 @@ export async function refreshToken(refreshToken: string) {
   }
 }
 
-export async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string, token?: string) {
+export async function changePassword(currentPassword: string, newPassword: string) {
   try {
-    const response = await authApi.updatePassword(currentPassword, newPassword, confirmPassword, token);
+    const response = await authApi.updatePassword(currentPassword, newPassword, newPassword);
     
     return { 
       success: response.success, 

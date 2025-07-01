@@ -12,6 +12,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize token from localStorage on mount (client-side only)
   useEffect(() => {
@@ -19,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken) {
       setTokenState(storedToken);
     }
+    setIsInitialized(true);
   }, []);
 
   const setToken = (newToken: string) => {
@@ -30,6 +32,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('token_cms');
     setTokenState(null);
   };
+
+  // Only render children after we've checked localStorage
+  if (!isInitialized) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <AuthContext.Provider value={{ token, setToken, clearToken }}>

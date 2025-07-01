@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus, Search, Building2, Users, Calendar, Stethoscope } from "lucide-react"
 import { ClinicForm } from "./clinic-form"
+import { useAuth } from "@/components/providers/AuthContext"
 
 interface Clinic {
   id: string
@@ -30,7 +31,8 @@ interface ClinicsClientProps {
 
 export function ClinicsClient({ initialClinics, userRole }: ClinicsClientProps) {
   const router = useRouter()
-  const [clinics, setClinics] = useState(initialClinics)
+  const { token } = useAuth()
+  const [clinics, setClinics] = useState<Clinic[]>(initialClinics)
   const [searchTerm, setSearchTerm] = useState("")
   const [isFormOpen, setIsFormOpen] = useState(false)
 

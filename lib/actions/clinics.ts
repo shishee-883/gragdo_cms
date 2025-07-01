@@ -66,12 +66,12 @@ export async function deleteClinic(id: string) {
   }
 }
 
-export async function getClinics(token:string) {
+export async function getClinics(token: string) {
   try {
     const response = await clinicsApi.getClinics(token);
-    console.log(response)
-    if (response.ok) {
-      return await (response.json()).clinic_list;
+    
+    if (response.success) {
+      return response.clinics;
     } else {
       console.error('Error fetching clinics:', response.error);
       return [];
