@@ -40,10 +40,11 @@ const patientSchema = z.object({
 type PatientFormData = z.infer<typeof patientSchema>
 
 interface PatientFormProps {
-  onSubmit: (data: PatientFormData) => void
+  onSubmit: (data: PatientFormData) => Promise<void>;
   onCancel: () => void
   initialData?: Partial<PatientFormData>
-  currentUser: any
+  currentUser: any,
+  patient:any
 }
 
 export function PatientForm({

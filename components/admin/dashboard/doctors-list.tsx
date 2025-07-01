@@ -1,33 +1,43 @@
+"use client"
+
 import { UserList } from "@/components/shared/user-list"
+import { useParams } from "next/navigation"
 
 interface Doctor {
-  id: string
+  id: number
   name: string
   specialization: string
-  isAvailable: boolean
+  availability: string   // from backend: e.g. "9am-5pm" or "N/A"
   avatar?: string
 }
 
 interface DoctorsListProps {
-  doctors: Doctor[]
+  doctors: Doctor[],
+  clinicId: string
 }
 
 export function DoctorsList({ doctors }: DoctorsListProps) {
-  // Transform doctors data to match UserList interface
-  const transformedDoctors = doctors.map(doctor => ({
-    id: doctor.id,
-    name: doctor.name,
-    role: doctor.specialization,
-    isAvailable: doctor.isAvailable,
-    avatar: doctor.avatar
+  const { clinicId } = useParams()
+
+  const transformedDoctors = doctors.map((doc) => ({
+    id: doc.id.toString(),
+    name: doc.name,
+    role: doc.specialization,
+    // mark available if availability isn’t “N/A” or empty
+    isAvailable:
+      doc.availability.trim().toLowerCase() !== "n/a" &&
+      doc.availability.trim() !== "",
+    // pass the raw availability into “status” so UserList can show it
+    status: doc.availability,
+    avatar: doc.avatar ?? "/images/default-avatar.png",
   }))
 
   return (
-    <UserList 
-      title="Doctors List"
+    <UserList
+      title="Doctors"
       users={transformedDoctors}
       actionLabel="Manage"
-      actionUrl="/admin/doctors"
+      actionUrl={`/admin/${clinicId}/doctors`}
     />
   )
 }

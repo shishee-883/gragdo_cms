@@ -28,6 +28,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.0.0",
+    "dayjs": "^1.11.13",
     "jose": "^5.2.3",
     "lucide-react": "^0.453.0",
     "nanoid": "^5.0.6",

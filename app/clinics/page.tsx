@@ -1,93 +1,106 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Suspense } from "react"
-import { ClinicsClient } from "@/components/clinics/clinics-client"
-import { getClinics } from "@/lib/actions/clinics"
-import { getUserProfile } from "@/lib/actions/profile"
-import { redirect, useRouter } from "next/navigation"
-import { getCurrentUser } from "@/lib/actions/auth"
+import { useRouter } from "next/navigation"
 import { useAuthToken } from "@/lib/hooks/useAuthToken"
+import { ClinicsClient } from "@/components/clinics/clinics-client"
+import { Suspense } from "react"
+
+// A simple skeleton: 6 placeholder cards
+function SkeletonClinics() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="p-4 space-y-4 bg-white rounded-2xl shadow animate-pulse"
+        >
+          <div className="h-6 bg-gray-200 rounded w-3/4" />
+          <div className="h-4 bg-gray-200 rounded w-1/2" />
+          <div className="h-40 bg-gray-200 rounded" />
+          <div className="flex space-x-2">
+            <div className="h-8 bg-gray-200 rounded flex-1" />
+            <div className="h-8 bg-gray-200 rounded w-20" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function ClinicsPage() {
   const router = useRouter()
   const { token } = useAuthToken()
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [userProfile, setUserProfile] = useState<any>(null)
+
   const [clinics, setClinics] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        // Get the current user
-        const user = await getCurrentUser(token)
-        setCurrentUser(user)
-        
-        // If no user is logged in, redirect to login
-        if (!user) {
-          router.push('/login')
-          return
-        }
-        
-        // Get the current user profile
-        const profile = await getUserProfile(user.id)
-        setUserProfile(profile)
-        
-        // If no user is logged in or user is not a super admin, redirect to login
-        if (!profile || profile.role !== 'SUPER_ADMIN') {
-          router.push('/login')
-          return
-        }
-        
-        // Get all clinics
-        const fetchedClinics = await getClinics(token)
-        
-        // Filter clinics based on user's clinicIds if they exist
-        const filteredClinics = fetchedClinics
-        setClinics(filteredClinics)
-      } catch (error) {
-        console.error('Error in clinics page:', error)
-        setError('Failed to load clinics')
-        router.push('/login')
-      } finally {
-        setLoading(false)
-      }
-    }
+    if (!token) return
 
-    fetchData()
+    let isMounted = true
+    const controller = new AbortController()
+    setLoading(true)
+    setError(null)
+
+    ;(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/clinics/all`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+            cache: "no-store",
+            signal: controller.signal,
+          }
+        )
+
+        if (res.status === 401) {
+          if (isMounted) router.push("/login")
+          return
+        }
+        if (!res.ok) throw new Error(`Error ${res.status}`)
+
+        const data = await res.json()
+        if (isMounted) setClinics(Array.isArray(data.clinic_list) ? data.clinic_list : [])
+      } catch (err: any) {
+        if (err.name !== "AbortError" && isMounted) {
+          console.error(err)
+          setError(err.message || "Failed to load clinics")
+        }
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    })()
+
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
   }, [token, router])
 
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7165e1] mx-auto"></div>
-        <p className="mt-4 text-lg text-gray-500 font-sf-pro">Loading clinics...</p>
-      </div>
-    )
-  }
-
-  if (error) {
+  if (error)
     return (
       <div className="text-center py-12">
         <p className="text-lg text-red-500 font-sf-pro">{error}</p>
       </div>
     )
-  }
 
   return (
     <div className="min-h-screen bg-[#f4f3ff] p-4 md:p-6 lg:p-[34px]">
-      <Suspense fallback={
-        <div className="text-center py-12">
-          <p className="text-lg text-gray-500 font-sf-pro">Loading clinics...</p>
-        </div>
-      }>
-        <ClinicsClient 
-          initialClinics={clinics} 
-          userRole={userProfile?.role || "SUPER_ADMIN"}
-        />
-      </Suspense>
+      {loading ? (
+        <SkeletonClinics />
+      ) : (
+        <Suspense
+          fallback={<SkeletonClinics />}
+        >
+          <ClinicsClient initialClinics={clinics} userRole="SUPER_ADMIN" />
+        </Suspense>
+      )}
     </div>
   )
 }

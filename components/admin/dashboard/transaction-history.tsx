@@ -12,7 +12,8 @@ interface Transaction {
 }
 
 interface TransactionHistoryProps {
-  transactions: Transaction[]
+  transactions: Transaction[],
+  clinicId: string
 }
 
 export function TransactionHistory({ transactions }: TransactionHistoryProps) {

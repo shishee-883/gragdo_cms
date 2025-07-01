@@ -16,7 +16,8 @@ interface Appointment {
 }
 
 interface AdminAppointmentsProps {
-  appointments: Appointment[]
+  appointments: Appointment[],
+  clinicId:string
 }
 
 export function AdminAppointments({ appointments }: AdminAppointmentsProps) {

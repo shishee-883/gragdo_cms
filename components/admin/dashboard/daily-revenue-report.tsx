@@ -2,64 +2,76 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useMemo } from "react"
+import dayjs from "dayjs"
 
-export function DailyRevenueReport() {
-  // Mock data for the chart
-  const chartData = [
-    { month: 'Jan-1', income: 30000, expense: 20000 },
-    { month: 'Jan-2', income: 35000, expense: 25000 },
-    { month: 'Jan-3', income: 40000, expense: 30000 },
-    { month: 'Jan-4', income: 32000, expense: 22000 },
-    { month: 'Jan-5', income: 38000, expense: 28000 },
-    { month: 'Jan-6', income: 42000, expense: 32000 },
-    { month: 'Jan-7', income: 36000, expense: 26000 },
-  ]
+interface DailyRevenueReportProps {
+  data: Record<string, number>
+  onViewMore?: () => void
+}
+
+export function DailyRevenueReport({ data, onViewMore }: DailyRevenueReportProps) {
+  // Convert your map into a sorted array of { date, amount }
+  const bars = useMemo(() => {
+    return Object.entries(data)
+      .map(([date, amount]) => ({
+        date: dayjs(date).format("MMM D"),
+        amount,
+      }))
+      .sort((a, b) => dayjs(a.date, "MMM D").diff(dayjs(b.date, "MMM D")))
+      .slice(-7) // last 7 entries
+  }, [data])
+
+  const total = useMemo(() => bars.reduce((sum, bar) => sum + bar.amount, 0), [bars])
+  const maxValue = useMemo(
+    () => (bars.length > 0 ? Math.max(...bars.map((b) => b.amount)) : 0),
+    [bars]
+  )
 
   return (
     <Card className="rounded-[20px] border-none shadow-sm">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-sf-pro font-semibold text-black">
-            Daily Revenue Report
+            Daily Revenue (Last 7 days)
           </h3>
-          <Button variant="link" className="text-[#7165e1] text-sm font-sf-pro font-medium p-0">
-            View more
-          </Button>
+          {onViewMore && (
+            <Button
+              variant="link"
+              className="text-[#7165e1] text-sm font-sf-pro font-medium p-0"
+              onClick={onViewMore}
+            >
+              View more
+            </Button>
+          )}
         </div>
 
         <div className="mb-6">
-          <p className="text-3xl font-bold text-[#7165e1] mb-2">₹ 2,50,000</p>
+          <p className="text-3xl font-bold text-[#7165e1] mb-2">
+            ₹ {total.toLocaleString("en-IN")}
+          </p>
         </div>
 
-        {/* Simple Bar Chart */}
         <div className="h-40 flex items-end justify-between gap-2 mb-4">
-          {chartData.map((data, index) => (
-            <div key={index} className="flex flex-col items-center flex-1">
-              <div className="w-full flex flex-col items-center gap-1">
-                <div 
-                  className="w-4 bg-[#7165e1] rounded-t"
-                  style={{ height: `${(data.income / 50000) * 100}px` }}
-                />
-                <div 
-                  className="w-4 bg-purple-300 rounded-t"
-                  style={{ height: `${(data.expense / 50000) * 80}px` }}
-                />
+          {bars.map((bar, idx) => {
+            const heightPercent = maxValue > 0 ? (bar.amount / maxValue) * 100 : 0
+            return (
+              <div key={idx} className="flex-1 flex flex-col items-center">
+                <div className="w-full flex flex-col justify-end h-full">
+                  <div
+                    className="w-full bg-[#7165e1] rounded-t"
+                    style={{ height: `${heightPercent}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 mt-2">{bar.date}</span>
               </div>
-              <span className="text-xs text-gray-500 mt-2">{data.month}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
-        {/* Legend */}
-        <div className="flex gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-[#7165e1] rounded"></div>
-            <span className="text-gray-600">Income</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-purple-300 rounded"></div>
-            <span className="text-gray-600">Expense</span>
-          </div>
+        <div className="flex items-center gap-2 text-sm">
+          <div className="w-3 h-3 bg-[#7165e1] rounded" />
+          <span className="text-gray-600">Revenue</span>
         </div>
       </CardContent>
     </Card>
