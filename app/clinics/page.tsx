@@ -1,3 +1,4 @@
+"use client"
 import { Suspense } from "react"
 import { ClinicsClient } from "@/components/clinics/clinics-client"
 import { getClinics } from "@/lib/actions/clinics"
@@ -6,7 +7,7 @@ import { redirect, useParams } from "next/navigation"
 import { getCurrentUser } from "@/lib/actions/auth"
 import { useAuthToken } from "@/lib/hooks/useAuthToken"
 
-export default async function ClinicsPage(context) {
+export default function ClinicsPage() {
   try {
     // const {token}=context.params
     const {token}=useAuthToken();
@@ -27,7 +28,8 @@ export default async function ClinicsPage(context) {
     // }
     
     // Get all clinics
-    const clinics = await getClinics(token)
+    const clinics = "await getClinics(token)"
+    console.log(token,"ayaskanta")
     
     // Filter clinics based on user's clinicIds if they exist
     const filteredClinics = clinics
@@ -40,10 +42,10 @@ export default async function ClinicsPage(context) {
             <p className="text-lg text-gray-500 font-sf-pro">Loading clinics...</p>
           </div>
         }>
-          <ClinicsClient 
+          {/* <ClinicsClient 
             initialClinics={filteredClinics} 
             userRole={"SUPER_ADMIN"}
-          />
+          /> */}
         </Suspense>
       </div>
     )

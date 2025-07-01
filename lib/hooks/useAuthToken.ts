@@ -1,3 +1,4 @@
+"use client"
 import { useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthContext';
 import { refreshToken } from '@/lib/actions/auth';
