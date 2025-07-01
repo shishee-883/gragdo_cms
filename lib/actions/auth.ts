@@ -26,7 +26,8 @@ export async function login(credentials: LoginCredentials) {
       return {
         success: true,
         user: response.user,
-        message: response.message
+        message: response.message,
+        token:response.access
       }
     } else {
       return { success: false, error: response.error || "Invalid credentials" }
@@ -125,45 +126,45 @@ export async function logout() {
 }
 
 export async function getCurrentUser() {
-  // try {
-  //   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/profile`, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     credentials: 'include'
-  //   });
-  //   if (!response.ok) {
-  //     return null;
-  //   }
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      return null;
+    }
     
-  //   const data = await response.json();
+    const data = await response.json();
     
-  //   if (data.success) {
-  //     return data.profile;
-  //   }
+    if (data.success) {
+      return data.profile;
+    }
     
-  //   return null;
-  // } catch (error) {
-  //   console.error('Error getting current user:', error);
-  //   return null;
-  // }
-  return    {
-    "id": '2',
-    "name": "Shivam Kumar",
-    "email": "shivamkumar.sps2004@gmail.com",
-    "phone": "9832651608",
-    "role": "SUPER_ADMIN",
-    "address": "asansol",
-    "bio": "bito is not my usbject",
-    "profileImage": "bito is not my usbject",
-    "clinic": {
-      "id": "11",
-      "name": "bhakti",
-      "address": "user.clinic.address",
-  },
-    "createdAt":  "",
-}
+    return null;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+//   return    {
+//     "id": '2',
+//     "name": "Shivam Kumar",
+//     "email": "shivamkumar.sps2004@gmail.com",
+//     "phone": "9832651608",
+//     "role": "SUPER_ADMIN",
+//     "address": "asansol",
+//     "bio": "bito is not my usbject",
+//     "profileImage": "bito is not my usbject",
+//     "clinic": {
+//       "id": "11",
+//       "name": "bhakti",
+//       "address": "user.clinic.address",
+//   },
+//     "createdAt":  "",
+// }
 }
 
 export async function refreshToken(refreshToken: string) {

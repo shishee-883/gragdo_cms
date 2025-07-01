@@ -27,8 +27,8 @@ import {
 } from "lucide-react"
 import { updateUserProfile } from "@/lib/actions/profile"
 import { formatDate } from "@/lib/utils"
-import { ChangePasswordForm } from "@/components/settings/change-password-form"
-import { useRouter } from "next/router"
+import { ClinicUsersClient } from "@/components/admin/users/clinic-users-client"
+// import { useRouter } from "next/router"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -62,7 +62,7 @@ interface ProfileClientProps {
 }
 
 export function ProfileClient({ initialProfile }: ProfileClientProps) {
-  const router=useRouter();
+  // const router=useRouter();
   const [isLoading, setIsLoading] = useState(false)
   const [profileImage, setProfileImage] = useState<string | undefined>(initialProfile.profileImage)
   const [activeTab, setActiveTab] = useState("profile")
@@ -135,7 +135,7 @@ export function ProfileClient({ initialProfile }: ProfileClientProps) {
     }
   }
   const handleroute=async()=>{
-    router.push(`/${initialProfile.clinic?.id}/admin/${initialProfile.id}`)
+    // router.push(`/${initialProfile.clinic?.id}/admin/${initialProfile.id}`)
   }
 
   return (
@@ -166,9 +166,8 @@ export function ProfileClient({ initialProfile }: ProfileClientProps) {
             <User className="w-4 h-4 mr-2" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="security" className="rounded-md data-[state=active]:bg-[#7165e1] data-[state=active]:text-white">
-            <Lock className="w-4 h-4 mr-2" />
-            Security
+          <TabsTrigger value="users" className="rounded-md data-[state=active]:bg-[#7165e1] data-[state=active]:text-white">
+            Users
           </TabsTrigger>
         </TabsList>
 
@@ -360,9 +359,9 @@ export function ProfileClient({ initialProfile }: ProfileClientProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="security">
+        <TabsContent value="users">
           <div className="max-w-4xl mx-auto">
-            <ChangePasswordForm />
+            <ClinicUsersClient clinicId={initialProfile.clinic?.id as string} initialUsers={initialProfile}/>
           </div>
         </TabsContent>
       </Tabs>

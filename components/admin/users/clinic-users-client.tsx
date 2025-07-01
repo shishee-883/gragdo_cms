@@ -24,7 +24,6 @@ import {
 import { Plus, Search, PenSquare, Trash2, AlertCircle } from "lucide-react"
 import { ClinicUserForm } from "./clinic-user-form"
 import { createClinicUser, getClinicUsers, updateUser, deleteUser } from "@/lib/actions/users"
-import { getCurrentUser } from "@/lib/actions/auth"
 import { Label } from "@/components/ui/label"
 
 interface ClinicUser {
@@ -34,16 +33,33 @@ interface ClinicUser {
   phoneNumber: string
   role: string
   createdAt: string
+} 
+interface UserProfile {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  role: string
+  address?: string
+  bio?: string
+  profileImage?: string
+  clinic?: {
+    name: string
+    address: string
+    id:string
+  }
+  createdAt: Date
 }
 
 interface ClinicUsersClientProps {
   clinicId: string
-  initialUsers: ClinicUser[]
+  admin:UserProfile,
+  // initialUsers: ClinicUser[]
 }
 
-export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientProps) {
-  const [users, setUsers] = useState(initialUsers)
-  const [filteredUsers, setFilteredUsers] = useState(initialUsers)
+export function ClinicUsersClient({ clinicId,admin}: ClinicUsersClientProps) {
+  const [users, setUsers] = useState<ClinicUser[] | null>(null)
+  const [filteredUsers, setFilteredUsers] = useState<ClinicUser[] | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [recordsPerPage, setRecordsPerPage] = useState("10")
   const [currentPage, setCurrentPage] = useState(1)
@@ -54,17 +70,10 @@ export function ClinicUsersClient({ clinicId, initialUsers }: ClinicUsersClientP
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const [deletePassword, setDeletePassword] = useState("")
   const [deleteError, setDeleteError] = useState("")
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<UserProfile>(admin)
   const [isLoading, setIsLoading] = useState(true)
 
   // Fetch current user
-  useEffect(() => {
-    async function fetchUser() {
-      const user = await getCurrentUser()
-      setCurrentUser(user)
-    }
-    fetchUser()
-  }, [])
 
   // Fetch clinic users
   useEffect(() => {

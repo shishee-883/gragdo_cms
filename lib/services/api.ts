@@ -12,7 +12,7 @@ export const apiClient = {
    * @param params Optional query parameters
    * @returns The response data
    */
-  async get(endpoint: string, params?: Record<string, string>) {
+  async get(endpoint: string, token:string,params?: Record<string, string>) {
     try {
       const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`);
       
@@ -29,6 +29,7 @@ export const apiClient = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         credentials: 'include',
         cache: 'no-store', // Disable caching
@@ -327,8 +328,8 @@ export const clinicsApi = {
    * Get all clinics
    * @returns Clinics response
    */
-  async getClinics() {
-    return apiClient.get('/clinics/');
+  async getClinics(token:string) {
+    return apiClient.get('/clinics/all',token);
   },
   
   /**

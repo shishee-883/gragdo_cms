@@ -2,34 +2,34 @@ import { Suspense } from "react"
 import { ClinicsClient } from "@/components/clinics/clinics-client"
 import { getClinics } from "@/lib/actions/clinics"
 import { getUserProfile } from "@/lib/actions/profile"
-import { redirect } from "next/navigation"
+import { redirect, useParams } from "next/navigation"
 import { getCurrentUser } from "@/lib/actions/auth"
 
-export default async function ClinicsPage() {
+export default async function ClinicsPage(context) {
   try {
+    const {token}=context.params
     // Get the current user
-    const currentUser = await getCurrentUser()
+    // const currentUser = await getCurrentUser()
     
-    // If no user is logged in, redirect to login
-    if (!currentUser) {
-      redirect('/login')
-    }
+    // // If no user is logged in, redirect to login
+    // if (!currentUser) {
+    //   redirect('/login')
+    // }
     
-    // Get the current user profile
-    const userProfile = await getUserProfile(currentUser.id)
+    // // Get the current user profile
+    // const userProfile = await getUserProfile(currentUser.id)
     
-    // If no user is logged in or user is not a super admin, redirect to login
-    if (!userProfile || userProfile.role !== 'SUPER_ADMIN') {
-      redirect('/login')
-    }
+    // // If no user is logged in or user is not a super admin, redirect to login
+    // if (!userProfile || userProfile.role !== 'SUPER_ADMIN') {
+    //   redirect('/login')
+    // }
     
     // Get all clinics
-    const clinics = await getClinics()
+    const clinics = await getClinics(token)
     
     // Filter clinics based on user's clinicIds if they exist
-    const filteredClinics = userProfile.clinicIds 
-      ? clinics.filter(clinic => userProfile.clinicIds?.includes(clinic.id))
-      : clinics
+    const filteredClinics = clinics
+    console.log(filteredClinics)
 
     return (
       <div className="min-h-screen bg-[#f4f3ff] p-4 md:p-6 lg:p-[34px]">
@@ -40,7 +40,7 @@ export default async function ClinicsPage() {
         }>
           <ClinicsClient 
             initialClinics={filteredClinics} 
-            userRole={userProfile.role}
+            userRole={"SUPER_ADMIN"}
           />
         </Suspense>
       </div>

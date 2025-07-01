@@ -15,7 +15,6 @@ interface AdminUsersPageProps {
 }
 
 export default async function AdminUsersPage({ params }: AdminUsersPageProps) {
-  // Verify clinic and admin exist
   const clinic = await getClinicById(params.clinicId)
   const admin = await findById<User>('users', params.adminId)
   

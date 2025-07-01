@@ -45,6 +45,8 @@ export function LoginForm() {
         email,
         password
       })
+      const token=result.token
+      localStorage.setItem('token_cms', token)
       console.log(result)
       if (result.success) {
         // Save credentials if remember me is checked
@@ -55,12 +57,15 @@ export function LoginForm() {
           localStorage.removeItem('digigo_email')
         }
         // Get current user to determine redirect path
-        const currentUser = await getCurrentUser()
+        // console.log(currentUser)
+        const currentUser=result.user
         console.log(currentUser)
         if (currentUser) {
           // Redirect based on role
-          if (currentUser.role === "SUPER_ADMIN") {
-            router.push("/profile")
+          if (currentUser.role === "SUPER_ADMIN"||currentUser.role === "super_admin") {
+            // router.push(`/${currentUser.clinic.id}/admin/${currentUser.id}/profile/`)
+            console.log("dfdfsdf")
+            router.push(`/clinics/${token}`)
           } else if (currentUser.role === "ADMIN") {
             if (currentUser.clinicId) {
               router.push(`/${currentUser.clinicId}/admin/${currentUser.id}/dashboard`)
