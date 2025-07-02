@@ -27,7 +27,7 @@ export async function login(credentials: LoginCredentials) {
         success: true,
         user: response.user,
         message: response.message,
-        token:response.access
+        token: response.access
       }
     } else {
       return { success: false, error: response.error || "Invalid credentials" }
@@ -125,23 +125,13 @@ export async function logout() {
   }
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(token?: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/profile`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include'
-    });
-    if (!response.ok) {
-      return null;
-    }
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.profile;
+    if (token) {
+      const response = await authApi.getCurrentUser(token);
+      if (response.success) {
+        return response.profile;
+      }
     }
     
     return null;
@@ -149,22 +139,6 @@ export async function getCurrentUser() {
     console.error('Error getting current user:', error);
     return null;
   }
-//   return    {
-//     "id": '2',
-//     "name": "Shivam Kumar",
-//     "email": "shivamkumar.sps2004@gmail.com",
-//     "phone": "9832651608",
-//     "role": "SUPER_ADMIN",
-//     "address": "asansol",
-//     "bio": "bito is not my usbject",
-//     "profileImage": "bito is not my usbject",
-//     "clinic": {
-//       "id": "11",
-//       "name": "bhakti",
-//       "address": "user.clinic.address",
-//   },
-//     "createdAt":  "",
-// }
 }
 
 export async function refreshToken(refreshToken: string) {
@@ -179,34 +153,21 @@ export async function refreshToken(refreshToken: string) {
       return { success: false, error: 'Failed to refresh token' }
     }
     
-    return { success: true }
+    return { success: true, token: response.access }
   } catch (error) {
     console.error('Error refreshing token:', error)
     return { success: false, error: 'An error occurred while refreshing token' }
   }
 }
 
-export async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+export async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string, token?: string) {
   try {
-    const response = await fetch('/api/update-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ 
-        current_password: currentPassword, 
-        new_password: newPassword, 
-        confirm_password: confirmPassword 
-      }),
-    });
-    
-    const data = await response.json();
+    const response = await authApi.updatePassword(currentPassword, newPassword, confirmPassword, token);
     
     return { 
-      success: response.ok && data.success, 
-      message: data.message || (response.ok ? 'Password updated successfully' : 'Failed to update password'),
-      error: !response.ok ? (data.error || 'Failed to update password') : undefined
+      success: response.success, 
+      message: response.message,
+      error: response.error 
     }
   } catch (error) {
     console.error('Error changing password:', error)
@@ -216,20 +177,12 @@ export async function changePassword(currentPassword: string, newPassword: strin
 
 export async function verifyEmail(uidb64: string, token: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/verify/${uidb64}/${token}/`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-    
-    const data = await response.json()
+    const response = await authApi.verifyEmail(uidb64, token);
     
     return { 
-      success: response.ok && data.success, 
-      message: data.message || (response.ok ? 'Email verified successfully' : 'Failed to verify email'),
-      error: !response.ok ? (data.error || 'Failed to verify email') : undefined
+      success: response.success, 
+      message: response.message,
+      error: response.error 
     }
   } catch (error) {
     console.error('Error verifying email:', error)

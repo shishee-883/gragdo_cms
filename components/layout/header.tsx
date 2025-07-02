@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Calendar, Bell, ChevronDown, Crown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/utils"
 import { PlanDetailsModal } from "@/components/layout/plan-details-modal"
 import Link from "next/link"
 import { logout } from "@/lib/actions/auth"
+import { useAuth } from "@/components/providers/AuthContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,9 +30,11 @@ interface HeaderProps {
 export function Header({ clinicName = "ABC Clinic", location = "Ongole" }: HeaderProps) {
   const currentDate = new Date()
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
+  const { clearToken } = useAuth()
 
   const handleLogout = async () => {
     await logout()
+    clearToken()
     window.location.href = '/login'
   }
 

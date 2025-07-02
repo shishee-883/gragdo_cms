@@ -7,6 +7,7 @@ import { LayoutDashboard, Calendar, Users, UserCheck, FileText, CreditCard, Sett
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { getCurrentUser } from "@/lib/actions/auth"
+import { useAuth } from "@/components/providers/AuthContext"
 
 interface SidebarProps {
   userRole: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF' | 'DOCTOR'
@@ -21,15 +22,18 @@ export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
   const [isMobile, setIsMobile] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const { token } = useAuth()
 
   // Fetch current user
   useEffect(() => {
     async function fetchCurrentUser() {
-      const user = await getCurrentUser()
-      setCurrentUser(user)
+      if (token) {
+        const user = await getCurrentUser(token)
+        setCurrentUser(user)
+      }
     }
     fetchCurrentUser()
-  }, [])
+  }, [token])
 
   // Use session user role if available
   const effectiveRole = currentUser?.role || userRole

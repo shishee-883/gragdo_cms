@@ -62,14 +62,20 @@ export async function refreshAccessToken(refreshToken: string): Promise<string |
 /**
  * Change a user's password
  */
-export async function changePassword(currentPassword: string, newPassword: string): Promise<{success: boolean, message?: string, error?: string}> {
+export async function changePassword(currentPassword: string, newPassword: string, token?: string): Promise<{success: boolean, message?: string, error?: string}> {
   try {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/change-password/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials:'include',
+      headers,
+      credentials: 'include',
       body: JSON.stringify({ 
         currentPassword, 
         newPassword 

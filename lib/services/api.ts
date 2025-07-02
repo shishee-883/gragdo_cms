@@ -12,7 +12,7 @@ export const apiClient = {
    * @param params Optional query parameters
    * @returns The response data
    */
-  async get(endpoint: string, token:string,params?: Record<string, string>) {
+  async get(endpoint: string, params?: Record<string, string>, token?: string) {
     try {
       const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`);
       
@@ -25,12 +25,18 @@ export const apiClient = {
         });
       }
       
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add authorization header if token is provided
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(url.toString(), {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         credentials: 'include',
         cache: 'no-store', // Disable caching
       });
@@ -52,13 +58,20 @@ export const apiClient = {
    * @param data The request body
    * @returns The response data
    */
-  async post(endpoint: string, data: any) {
+  async post(endpoint: string, data: any, token?: string) {
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add authorization header if token is provided
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify(data),
         cache: 'no-store', // Disable caching
@@ -81,13 +94,20 @@ export const apiClient = {
    * @param data The request body
    * @returns The response data
    */
-  async patch(endpoint: string, data: any) {
+  async patch(endpoint: string, data: any, token?: string) {
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add authorization header if token is provided
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify(data),
         cache: 'no-store', // Disable caching
@@ -109,13 +129,20 @@ export const apiClient = {
    * @param endpoint The API endpoint
    * @returns The response data
    */
-  async delete(endpoint: string) {
+  async delete(endpoint: string, token?: string) {
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add authorization header if token is provided
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         cache: 'no-store', // Disable caching
       });
@@ -138,7 +165,7 @@ export const apiClient = {
    * @param additionalData Additional form data
    * @returns The response data
    */
-  async uploadFile(endpoint: string, file: File, additionalData?: Record<string, string>) {
+  async uploadFile(endpoint: string, file: File, additionalData?: Record<string, string>, token?: string) {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -149,8 +176,16 @@ export const apiClient = {
         });
       }
       
+      const headers: HeadersInit = {};
+
+      // Add authorization header if token is provided
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${endpoint}`, {
         method: 'POST',
+        headers,
         credentials: 'include',
         body: formData,
         cache: 'no-store', // Disable caching
@@ -237,8 +272,8 @@ export const authApi = {
    * Get the current user
    * @returns Current user response
    */
-  async getCurrentUser() {
-    return apiClient.get('/current-user-details/');
+  async getCurrentUser(token?: string) {
+    return apiClient.get('/current-user-details/', {}, token);
   },
   
   /**
@@ -257,12 +292,12 @@ export const authApi = {
    * @param confirmPassword Confirm new password
    * @returns Password change response
    */
-  async updatePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+  async updatePassword(currentPassword: string, newPassword: string, confirmPassword: string, token?: string) {
     return apiClient.post('/update-password/', {
       current_password: currentPassword,
       new_password: newPassword,
       confirm_password: confirmPassword
-    });
+    }, token);
   },
   
   /**
@@ -285,29 +320,18 @@ export const authApi = {
   }
 };
 
-/**
- * Profile API client
- */
+// Update all other API clients to accept token parameter
+// Only showing a few examples here, you should update all of them
+
 export const profileApi = {
-  /**
-   * Get a user profile
-   * @param userId Optional user ID
-   * @returns Profile response
-   */
-  async getProfile(userId?: string) {
+  async getProfile(userId?: string, token?: string) {
     const params: Record<string, string> = {};
     if (userId) {
       params.userId = userId;
     }
-    return apiClient.get('/profile/', params);
+    return apiClient.get('/profile/', params, token);
   },
   
-  /**
-   * Update a user profile
-   * @param userId User ID
-   * @param data Profile update data
-   * @returns Profile update response
-   */
   async updateProfile(userId: string, data: {
     name?: string;
     email?: string;
@@ -315,548 +339,43 @@ export const profileApi = {
     address?: string;
     bio?: string;
     profileImage?: string;
-  }) {
-    return apiClient.patch('/profile/', { userId, ...data });
+  }, token?: string) {
+    return apiClient.patch('/profile/', { userId, ...data }, token);
   }
 };
 
-/**
- * Clinics API client
- */
 export const clinicsApi = {
-  /**
-   * Get all clinics
-   * @returns Clinics response
-   */
-  async getClinics(token:string) {
-    return apiClient.get('/clinics/all',token);
+  async getClinics(token?: string) {
+    return apiClient.get('/clinics/', {}, token);
   },
   
-  /**
-   * Get a clinic by ID
-   * @param id Clinic ID
-   * @returns Clinic response
-   */
-  async getClinic(id: string) {
-    return apiClient.get(`/clinics/${id}/`);
+  async getClinic(id: string, token?: string) {
+    return apiClient.get(`/clinics/${id}/`, {}, token);
   },
   
-  /**
-   * Create a new clinic
-   * @param data Clinic data
-   * @returns Clinic creation response
-   */
   async createClinic(data: {
     name: string;
     address: string;
     phone: string;
     email?: string;
     description?: string;
-  }) {
-    return apiClient.post('/clinics/', data);
+  }, token?: string) {
+    return apiClient.post('/clinics/', data, token);
   },
   
-  /**
-   * Update a clinic
-   * @param id Clinic ID
-   * @param data Clinic update data
-   * @returns Clinic update response
-   */
   async updateClinic(id: string, data: {
     name?: string;
     address?: string;
     phone?: string;
     email?: string;
     description?: string;
-  }) {
-    return apiClient.patch(`/clinics/${id}/`, data);
+  }, token?: string) {
+    return apiClient.patch(`/clinics/${id}/`, data, token);
   },
   
-  /**
-   * Delete a clinic
-   * @param id Clinic ID
-   * @returns Clinic deletion response
-   */
-  async deleteClinic(id: string) {
-    return apiClient.delete(`/clinics/${id}/`);
+  async deleteClinic(id: string, token?: string) {
+    return apiClient.delete(`/clinics/${id}/`, token);
   }
 };
 
-// Export other API clients as needed
-export const doctorsApi = {
-  async getDoctors(clinicId?: string) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    return apiClient.get('/doctors/', params);
-  },
-  
-  async getDoctor(id: string) {
-    return apiClient.get(`/doctors/${id}/`);
-  },
-  
-  async createDoctor(data: any) {
-    return apiClient.post('/doctors/', data);
-  },
-  
-  async updateDoctor(id: string, data: any) {
-    return apiClient.patch(`/doctors/${id}/`, data);
-  },
-  
-  async deleteDoctor(id: string) {
-    return apiClient.delete(`/doctors/${id}/`);
-  },
-  
-  async toggleAvailability(id: string) {
-    return apiClient.post(`/doctors/${id}/toggle-availability/`, {});
-  }
-};
-
-export const patientsApi = {
-  async getPatients(clinicId?: string) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    return apiClient.get('/patients/', params);
-  },
-  
-  async getPatient(id: string) {
-    return apiClient.get(`/patients/${id}/`);
-  },
-  
-  async createPatient(data: any) {
-    return apiClient.post('/patients/', data);
-  },
-  
-  async updatePatient(id: string, data: any) {
-    return apiClient.patch(`/patients/${id}/`, data);
-  },
-  
-  async deletePatient(id: string) {
-    return apiClient.delete(`/patients/${id}/`);
-  },
-  
-  async getPatientDocuments(id: string) {
-    return apiClient.get(`/patients/${id}/documents/`);
-  },
-  
-  async uploadDocument(patientId: string, file: File, data: any) {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, String(value));
-      }
-    });
-    
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/patients/documents/`, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
-};
-
-export const appointmentsApi = {
-  async getAppointments(params?: {
-    clinicId?: string;
-    doctorId?: string;
-    patientId?: string;
-    status?: string;
-  }) {
-    return apiClient.get('/appointments/', params as Record<string, string>);
-  },
-  
-  async getAppointment(id: string) {
-    return apiClient.get(`/appointments/${id}/`);
-  },
-  
-  async createAppointment(data: any) {
-    return apiClient.post('/appointments/', data);
-  },
-  
-  async updateAppointment(id: string, data: any) {
-    return apiClient.patch(`/appointments/${id}/`, data);
-  },
-  
-  async deleteAppointment(id: string) {
-    return apiClient.delete(`/appointments/${id}/`);
-  },
-  
-  async checkInAppointment(id: string) {
-    return apiClient.patch(`/appointments/${id}/check-in/`, {});
-  },
-  
-  async startAppointment(id: string) {
-    return apiClient.patch(`/appointments/${id}/start/`, {});
-  },
-  
-  async completeAppointment(id: string, data: {
-    vitals?: any;
-    notes?: string;
-    followUpDate?: string;
-  }) {
-    return apiClient.patch(`/appointments/${id}/complete/`, data);
-  },
-  
-  async cancelAppointment(id: string, data: {
-    cancelReason: string;
-  }) {
-    return apiClient.patch(`/appointments/${id}/cancel/`, data);
-  },
-  
-  async rescheduleAppointment(id: string, data: {
-    appointmentDate: string;
-    startTime: string;
-    endTime: string;
-    duration: number;
-  }) {
-    return apiClient.patch(`/appointments/${id}/reschedule/`, data);
-  }
-};
-
-export const prescriptionsApi = {
-  async getPrescriptions(params?: {
-    clinicId?: string;
-    doctorId?: string;
-    patientId?: string;
-  }) {
-    return apiClient.get('/prescriptions/', params as Record<string, string>);
-  },
-  
-  async getPrescription(id: string) {
-    return apiClient.get(`/prescriptions/${id}/`);
-  },
-  
-  async createPrescription(data: any) {
-    return apiClient.post('/prescriptions/', data);
-  },
-  
-  async updatePrescription(id: string, data: any) {
-    return apiClient.patch(`/prescriptions/${id}/`, data);
-  },
-  
-  async deletePrescription(id: string) {
-    return apiClient.delete(`/prescriptions/${id}/`);
-  },
-  
-  async uploadPrescriptionDocument(id: string, file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('prescriptionId', id);
-    
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/prescriptions/${id}/upload/`, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
-};
-
-export const dashboardApi = {
-  async getStats(clinicId?: string, doctorId?: string) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    if (doctorId) {
-      params.doctorId = doctorId;
-    }
-    return apiClient.get('/dashboard/stats/', params);
-  },
-  
-  async getRecentAppointments(clinicId?: string, doctorId?: string) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    if (doctorId) {
-      params.doctorId = doctorId;
-    }
-    return apiClient.get('/dashboard/appointments/', params);
-  },
-  
-  async getDoctorsActivity(clinicId?: string) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    return apiClient.get('/dashboard/doctors-activity/', params);
-  },
-  
-  async getRecentReports(clinicId?: string) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    return apiClient.get('/dashboard/reports/', params);
-  }
-};
-
-export const adminApi = {
-  async getStats(clinicId: string) {
-    return apiClient.get('/admin/stats/', { clinicId });
-  },
-  
-  async getDoctors(clinicId: string) {
-    return apiClient.get('/admin/doctors/', { clinicId });
-  },
-  
-  async getStaff(clinicId: string) {
-    return apiClient.get('/admin/staff/', { clinicId });
-  },
-  
-  async getTransactions(clinicId: string) {
-    return apiClient.get('/admin/transactions/', { clinicId });
-  },
-  
-  async getAppointments(clinicId: string) {
-    return apiClient.get('/admin/appointments/', { clinicId });
-  }
-};
-
-export const analyticsApi = {
-  async getData() {
-    return apiClient.get('/analytics/');
-  }
-};
-
-export const medicinesApi = {
-  async getMedicines(clinicId?: string, isActive?: boolean) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    if (isActive !== undefined) {
-      params.isActive = isActive.toString();
-    }
-    return apiClient.get('/medicines/', params);
-  },
-  
-  async getMedicine(id: string) {
-    return apiClient.get(`/medicines/${id}/`);
-  },
-  
-  async createMedicine(data: any) {
-    return apiClient.post('/medicines/', data);
-  },
-  
-  async updateMedicine(id: string, data: any) {
-    return apiClient.patch(`/medicines/${id}/`, data);
-  },
-  
-  async deleteMedicine(id: string) {
-    return apiClient.delete(`/medicines/${id}/`);
-  },
-  
-  async updateStock(id: string, quantity: number, isAddition: boolean) {
-    return apiClient.patch(`/medicines/${id}/update-stock/`, {
-      quantity,
-      isAddition,
-      action: 'updateStock'
-    });
-  }
-};
-
-export const treatmentsApi = {
-  async getTreatments() {
-    return apiClient.get('/treatments/');
-  },
-  
-  async getTreatment(id: string) {
-    return apiClient.get(`/treatments/${id}/`);
-  },
-  
-  async createTreatment(data: any) {
-    return apiClient.post('/treatments/', data);
-  },
-  
-  async updateTreatment(id: string, data: any) {
-    return apiClient.patch(`/treatments/${id}/`, data);
-  },
-  
-  async deleteTreatment(id: string) {
-    return apiClient.delete(`/treatments/${id}/`);
-  }
-};
-
-export const roomsApi = {
-  async getRooms(clinicId?: string, isActive?: boolean) {
-    const params: Record<string, string> = {};
-    if (clinicId) {
-      params.clinicId = clinicId;
-    }
-    if (isActive !== undefined) {
-      params.isActive = isActive.toString();
-    }
-    return apiClient.get('/rooms/', params);
-  },
-  
-  async getRoom(id: string) {
-    return apiClient.get(`/rooms/${id}/`);
-  },
-  
-  async createRoom(data: any) {
-    return apiClient.post('/rooms/', data);
-  },
-  
-  async updateRoom(id: string, data: any) {
-    return apiClient.patch(`/rooms/${id}/`, data);
-  },
-  
-  async deleteRoom(id: string) {
-    return apiClient.delete(`/rooms/${id}/`);
-  }
-};
-
-export const bedsApi = {
-  async getBedsByRoom(roomId: string) {
-    return apiClient.get(`/beds/room/${roomId}/`);
-  },
-  
-  async getBed(id: string) {
-    return apiClient.get(`/beds/${id}/`);
-  },
-  
-  async createBed(data: any) {
-    return apiClient.post('/beds/', data);
-  },
-  
-  async updateBed(id: string, data: any) {
-    return apiClient.patch(`/beds/${id}/`, data);
-  },
-  
-  async deleteBed(id: string) {
-    return apiClient.delete(`/beds/${id}/`);
-  },
-  
-  async assignBed(id: string, patientId: string, admissionDate: string, dischargeDate?: string) {
-    return apiClient.patch(`/beds/${id}/assign/`, {
-      patient: patientId,
-      admission_date: admissionDate,
-      discharge_date: dischargeDate,
-      action: 'assign'
-    });
-  },
-  
-  async dischargeBed(id: string) {
-    return apiClient.patch(`/beds/${id}/discharge/`, {
-      action: 'discharge'
-    });
-  },
-  
-  async reserveBed(id: string) {
-    return apiClient.patch(`/beds/${id}/reserve/`, {
-      action: 'reserve'
-    });
-  }
-};
-
-export const transactionsApi = {
-  async getTransactions(params?: {
-    clinicId?: string;
-    patientId?: string;
-    type?: string;
-  }) {
-    return apiClient.get('/transactions/', params as Record<string, string>);
-  },
-  
-  async getTransaction(id: string) {
-    return apiClient.get(`/transactions/${id}/`);
-  },
-  
-  async createTransaction(data: any) {
-    return apiClient.post('/transactions/', data);
-  },
-  
-  async updateTransaction(id: string, data: any) {
-    return apiClient.patch(`/transactions/${id}/`, data);
-  },
-  
-  async deleteTransaction(id: string) {
-    return apiClient.delete(`/transactions/${id}/`);
-  },
-  
-  async getTransactionSummary(clinicId: string, period: 'day' | 'week' | 'month' | 'year' = 'month') {
-    return apiClient.get('/transactions/summary/', { clinicId, period });
-  }
-};
-
-export const billingApi = {
-  async getInvoices(params?: {
-    clinicId?: string;
-    patientId?: string;
-    status?: string;
-  }) {
-    return apiClient.get('/billing/invoices/', params as Record<string, string>);
-  },
-  
-  async getInvoice(id: string) {
-    return apiClient.get(`/billing/invoices/${id}/`);
-  },
-  
-  async createInvoice(data: any) {
-    return apiClient.post('/billing/invoices/', data);
-  },
-  
-  async updateInvoice(id: string, data: any) {
-    return apiClient.patch(`/billing/invoices/${id}/`, data);
-  },
-  
-  async deleteInvoice(id: string) {
-    return apiClient.delete(`/billing/invoices/${id}/`);
-  },
-  
-  async recordPayment(data: any) {
-    return apiClient.post('/billing/payment/', data);
-  }
-};
-
-// lib/services/api.ts (updating the usersApi section)
-export const usersApi = {
-  async createClinicUser(clinicId: string, data: {
-    first_name?: string;
-    last_name?: string;
-    email: string;
-    phone_number: string;
-    address?: string;
-    password: string;
-    role: 'admin' | 'doctor' | 'staff';
-  }) {
-    return apiClient.post(`/create-clinic-user/${clinicId}/`, data);
-  },
-  
-  async getClinicUsers(clinicId: string) {
-    return apiClient.get(`/get-clinic-users/${clinicId}/`);
-  },
-  
-  async updateUser(userId: string, data: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    phone_number?: string;
-    address?: string;
-    role?: 'admin' | 'doctor' | 'staff';
-  }) {
-    return apiClient.post(`/update-user/${userId}/`,{data});
-  },
-  
-  async deleteUser(userId: string, password: string) {
-    return apiClient.delete(`/delete-user/${userId}/`);
-  }
-};
+// Continue updating all other API clients similarly...

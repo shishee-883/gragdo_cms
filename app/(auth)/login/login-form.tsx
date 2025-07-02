@@ -9,16 +9,19 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { login, getCurrentUser, resetPassword } from "@/lib/actions/auth"
 import { Eye, EyeOff } from "lucide-react"
+import { useAuth } from "@/components/providers/AuthContext"
 
 export function LoginForm() {
   const router = useRouter()
+  const { setToken } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [forget,setForget]=useState(false)
+  const [forget, setForget] = useState(false)
+
   // Check for saved credentials in localStorage
   useEffect(() => {
     const savedEmail = localStorage.getItem('digigo_email')
@@ -45,10 +48,11 @@ export function LoginForm() {
         email,
         password
       })
-      const token=result.token
-      localStorage.setItem('token_cms', token)
-      console.log(result)
+      
       if (result.success) {
+        // Save the token
+        setToken(result.token)
+        
         // Save credentials if remember me is checked
         if (rememberMe) {
           localStorage.setItem('digigo_email', email)
@@ -56,16 +60,14 @@ export function LoginForm() {
           // Clear saved credentials if remember me is unchecked
           localStorage.removeItem('digigo_email')
         }
+        
         // Get current user to determine redirect path
-        // console.log(currentUser)
-        const currentUser=result.user
-        console.log(currentUser)
+        const currentUser = result.user
+        
         if (currentUser) {
           // Redirect based on role
-          if (currentUser.role === "SUPER_ADMIN"||currentUser.role === "super_admin") {
-            // router.push(`/${currentUser.clinic.id}/admin/${currentUser.id}/profile/`)
-            console.log("dfdfsdf")
-            router.push(`/clinics/${token}`)
+          if (currentUser.role === "SUPER_ADMIN" || currentUser.role === "super_admin") {
+            router.push(`/clinics/${result.token}`)
           } else if (currentUser.role === "ADMIN") {
             if (currentUser.clinicId) {
               router.push(`/${currentUser.clinicId}/admin/${currentUser.id}/dashboard`)
@@ -98,42 +100,42 @@ export function LoginForm() {
       setIsLoading(false)
     }
   }
-    const handleforgetpassword = async (e: React.FormEvent) => {
-      e.preventDefault()
-          try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/forgot-password/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body:JSON.stringify({email:email}),
-              credentials: 'include',
-            })
-            const result=await response.json();
-            if (response.ok) {
 
-              setForget(true)
-            } else {
-              setError(result.message || "Signup failed")
-            }
-          } catch (error) {
-            setError("An unexpected error occurred")
-            console.error(error)
-          } 
-    }
-    if(forget){
-      return (
-        <div className="text-center">
-          <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">Account Created Successfully</h3>
-            <p>
-              Please Check your email for reset-Password URL.
-            </p>
-          </div>
+  const handleforgetpassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/forgot-password/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({email: email}),
+        credentials: 'include',
+      })
+      const result = await response.json();
+      if (response.ok) {
+        setForget(true)
+      } else {
+        setError(result.message || "Signup failed")
+      }
+    } catch (error) {
+      setError("An unexpected error occurred")
+      console.error(error)
+    } 
+  }
+
+  if (forget) {
+    return (
+      <div className="text-center">
+        <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Account Created Successfully</h3>
+          <p>
+            Please Check your email for reset-Password URL.
+          </p>
         </div>
-      )
-    }
-  
+      </div>
+    )
+  }
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -192,13 +194,7 @@ export function LoginForm() {
             Remember me
           </label>
         </div>
-        {/* <Link
-          href="/reset-password"
-          className="text-sm font-medium text-[#7165e1] hover:underline"
-        >
-          Forgot Password?
-        </Link> */}
-        <button type="button"  onClick={handleforgetpassword} className="text-sm font-medium leading-none">Forgot Password? </button>
+        <button type="button" onClick={handleforgetpassword} className="text-sm font-medium leading-none">Forgot Password? </button>
       </div>
       
       <Button 
