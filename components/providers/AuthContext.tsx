@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface AuthContextType {
   token: string | null;
@@ -13,21 +13,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
 
-  // Initialize token from localStorage on mount (client-side only)
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token_cms');
-    if (storedToken) {
-      setTokenState(storedToken);
-    }
-  }, []);
-
   const setToken = (newToken: string) => {
-    localStorage.setItem('token_cms', newToken);
     setTokenState(newToken);
   };
 
   const clearToken = () => {
-    localStorage.removeItem('token_cms');
     setTokenState(null);
   };
 
