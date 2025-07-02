@@ -1,5 +1,7 @@
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { StatsCards } from "@/components/dashboard/stats-cards"
@@ -17,17 +19,66 @@ interface DoctorDashboardPageProps {
   }
 }
 
-export default async function DoctorDashboardPage({ params }: DoctorDashboardPageProps) {
-  // Verify clinic and doctor exist
-  const clinic = await getClinicById(params.clinicId)
-  const doctor = await getDoctorById(params.doctorId)
-  
-  if (!clinic || !doctor) {
-    notFound()
+export default function DoctorDashboardPage({ params }: DoctorDashboardPageProps) {
+  const router = useRouter()
+  const [clinic, setClinic] = useState<any>(null)
+  const [doctor, setDoctor] = useState<any>(null)
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Verify clinic and doctor exist
+        const fetchedClinic = await getClinicById(params.clinicId)
+        const fetchedDoctor = await getDoctorById(params.doctorId)
+        
+        if (!fetchedClinic || !fetchedDoctor) {
+          router.push('/not-found')
+          return
+        }
+
+        setClinic(fetchedClinic)
+        setDoctor(fetchedDoctor)
+
+        // Get dashboard stats for this clinic and doctor
+        const fetchedStats = await getDashboardStats(params.clinicId, params.doctorId)
+        setStats(fetchedStats)
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+        setError('Failed to load dashboard data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [params.clinicId, params.doctorId, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7165e1]"></div>
+      </div>
+    )
   }
 
-  // Get dashboard stats for this clinic and doctor
-  const stats = await getDashboardStats(params.clinicId, params.doctorId)
+  if (error || !clinic || !doctor || !stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl text-red-500 mb-4">{error || "Error loading dashboard"}</p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-[#7165e1] text-white rounded-lg"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-[#f4f3ff]">

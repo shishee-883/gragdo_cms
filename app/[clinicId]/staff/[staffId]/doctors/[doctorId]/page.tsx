@@ -1,5 +1,7 @@
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { DoctorProfileClient } from "@/components/doctors/doctor-profile-client"
@@ -16,15 +18,68 @@ interface DoctorProfilePageProps {
   }
 }
 
-export default async function DoctorProfilePage({ params }: DoctorProfilePageProps) {
-  // Verify clinic, staff, and doctor exist
-  const clinic = await getClinicById(params.clinicId)
-  const staff = await findById<User>('users', params.staffId)
-  const doctor = await getDoctorById(params.doctorId)
+export default function DoctorProfilePage({ params }: DoctorProfilePageProps) {
+  const router = useRouter()
+  const [clinic, setClinic] = useState<any>(null)
+  const [staff, setStaff] = useState<User | null>(null)
+  const [doctor, setDoctor] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  if (!clinic || !staff || !doctor || staff.role !== 'STAFF' || 
-      staff.clinicId !== params.clinicId || doctor.clinicId !== params.clinicId) {
-    notFound()
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Verify clinic, staff, and doctor exist
+        const [fetchedClinic, fetchedStaff, fetchedDoctor] = await Promise.all([
+          getClinicById(params.clinicId),
+          findById<User>('users', params.staffId),
+          getDoctorById(params.doctorId)
+        ])
+
+        if (!fetchedClinic || !fetchedStaff || !fetchedDoctor || 
+            fetchedStaff.role !== 'STAFF' || 
+            fetchedStaff.clinicId !== params.clinicId || 
+            fetchedDoctor.clinicId !== params.clinicId) {
+          router.push('/not-found')
+          return
+        }
+
+        setClinic(fetchedClinic)
+        setStaff(fetchedStaff)
+        setDoctor(fetchedDoctor)
+      } catch (error) {
+        console.error('Error fetching doctor profile:', error)
+        setError('Failed to load doctor profile')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [params.clinicId, params.staffId, params.doctorId, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7165e1]"></div>
+      </div>
+    )
+  }
+
+  if (error || !clinic || !staff || !doctor) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl text-red-500 mb-4">{error || "Error loading doctor profile"}</p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-[#7165e1] text-white rounded-lg"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -35,13 +90,7 @@ export default async function DoctorProfilePage({ params }: DoctorProfilePagePro
         <Header clinicName={clinic.name} location={clinic.address.split(',')[0]} />
         
         <div className="p-4 md:p-6 lg:p-[34px]">
-          <Suspense fallback={
-            <div className="text-center py-12">
-              <p className="text-lg text-gray-500 font-sf-pro">Loading doctor profile...</p>
-            </div>
-          }>
-            <DoctorProfileClient doctor={doctor} />
-          </Suspense>
+          <DoctorProfileClient doctor={doctor} />
         </div>
       </main>
     </div>

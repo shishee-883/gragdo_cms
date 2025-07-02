@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { SignupForm } from "./signup-form"
 import Image from "next/image"
 
