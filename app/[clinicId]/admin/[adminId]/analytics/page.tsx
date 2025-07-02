@@ -1,5 +1,7 @@
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { AnalyticsClient } from "@/components/admin/analytics/analytics-client"
@@ -15,16 +17,68 @@ interface AdminAnalyticsPageProps {
   }
 }
 
-export default async function AdminAnalyticsPage({ params }: AdminAnalyticsPageProps) {
-  // Verify clinic and admin exist
-  const clinic = await getClinicById(params.clinicId)
-  const admin = await findById<User>('users', params.adminId)
-  
-  if (!clinic || !admin || (admin.role !== 'ADMIN' && admin.role !== 'SUPER_ADMIN') || admin.clinicId !== params.clinicId) {
-    notFound()
+export default function AdminAnalyticsPage({ params }: AdminAnalyticsPageProps) {
+  const router = useRouter()
+  const [clinic, setClinic] = useState<any>(null)
+  const [admin, setAdmin] = useState<User | null>(null)
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Verify clinic and admin exist
+        const fetchedClinic = await getClinicById(params.clinicId)
+        const fetchedAdmin = await findById<User>('users', params.adminId)
+        
+        if (!fetchedClinic || !fetchedAdmin || 
+            (fetchedAdmin.role !== 'ADMIN' && fetchedAdmin.role !== 'SUPER_ADMIN') || 
+            fetchedAdmin.clinicId !== params.clinicId) {
+          router.push('/not-found')
+          return
+        }
+
+        setClinic(fetchedClinic)
+        setAdmin(fetchedAdmin)
+
+        // Fetch analytics data
+        const data = await getAnalyticsData()
+        setAnalyticsData(data)
+      } catch (error) {
+        console.error('Error fetching analytics data:', error)
+        setError('Failed to load analytics data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [params.clinicId, params.adminId, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7165e1]"></div>
+      </div>
+    )
   }
 
-  const analyticsData = await getAnalyticsData()
+  if (error || !clinic || !admin || !analyticsData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl text-red-500 mb-4">{error || "Error loading analytics"}</p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-[#7165e1] text-white rounded-lg"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-[#f4f3ff]">
@@ -34,13 +88,7 @@ export default async function AdminAnalyticsPage({ params }: AdminAnalyticsPageP
         <Header clinicName={clinic.name} location={clinic.address.split(',')[0]} />
         
         <div className="p-4 md:p-6 lg:p-[34px]">
-          <Suspense fallback={
-            <div className="text-center py-12">
-              <p className="text-lg text-gray-500 font-sf-pro">Loading analytics...</p>
-            </div>
-          }>
-            <AnalyticsClient initialData={analyticsData} />
-          </Suspense>
+          <AnalyticsClient initialData={analyticsData} />
         </div>
       </main>
     </div>

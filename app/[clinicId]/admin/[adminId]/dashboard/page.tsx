@@ -1,5 +1,7 @@
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { AdminStatsCards } from "@/components/admin/dashboard/admin-stats-cards"
@@ -20,22 +22,89 @@ interface AdminDashboardPageProps {
   }
 }
 
-export default async function AdminDashboardPage({ params }: AdminDashboardPageProps) {
-  // Verify clinic and admin exist
-  const clinic = await getClinicById(params.clinicId)
-  const admin = await findById<User>('users', params.adminId)
-  
-  if (!clinic || !admin || (admin.role !== 'ADMIN' && admin.role !== 'SUPER_ADMIN') || admin.clinicId !== params.clinicId) {
-    notFound()
+export default function AdminDashboardPage({ params }: AdminDashboardPageProps) {
+  const router = useRouter()
+  const [clinic, setClinic] = useState<any>(null)
+  const [admin, setAdmin] = useState<User | null>(null)
+  const [stats, setStats] = useState<any>(null)
+  const [doctors, setDoctors] = useState<any[]>([])
+  const [staff, setStaff] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [appointments, setAppointments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Verify clinic and admin exist
+        const fetchedClinic = await getClinicById(params.clinicId)
+        const fetchedAdmin = await findById<User>('users', params.adminId)
+        
+        if (!fetchedClinic || !fetchedAdmin || 
+            (fetchedAdmin.role !== 'ADMIN' && fetchedAdmin.role !== 'SUPER_ADMIN') || 
+            fetchedAdmin.clinicId !== params.clinicId) {
+          router.push('/not-found')
+          return
+        }
+
+        setClinic(fetchedClinic)
+        setAdmin(fetchedAdmin)
+
+        // Fetch all dashboard data in parallel
+        const [
+          fetchedStats, 
+          fetchedDoctors, 
+          fetchedStaff, 
+          fetchedTransactions, 
+          fetchedAppointments
+        ] = await Promise.all([
+          getAdminDashboardStats(params.clinicId),
+          getAdminDoctors(params.clinicId),
+          getAdminStaff(params.clinicId),
+          getAdminTransactions(params.clinicId),
+          getAdminAppointments(params.clinicId)
+        ])
+
+        setStats(fetchedStats)
+        setDoctors(fetchedDoctors)
+        setStaff(fetchedStaff)
+        setTransactions(fetchedTransactions)
+        setAppointments(fetchedAppointments)
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+        setError('Failed to load dashboard data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [params.clinicId, params.adminId, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7165e1]"></div>
+      </div>
+    )
   }
 
-  const [stats, doctors, staff, transactions, appointments] = await Promise.all([
-    getAdminDashboardStats(params.clinicId),
-    getAdminDoctors(params.clinicId),
-    getAdminStaff(params.clinicId),
-    getAdminTransactions(params.clinicId),
-    getAdminAppointments(params.clinicId)
-  ])
+  if (error || !clinic || !admin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl text-red-500 mb-4">{error || "Error loading dashboard"}</p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-[#7165e1] text-white rounded-lg"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-[#f4f3ff]">
@@ -46,49 +115,25 @@ export default async function AdminDashboardPage({ params }: AdminDashboardPageP
         
         <div className="p-4 md:p-6 lg:p-[34px]">
           {/* Stats Cards */}
-          <Suspense fallback={
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-20 bg-gray-200 animate-pulse rounded-[16px]" />
-              ))}
-            </div>
-          }>
+          <div className="mb-6">
             <AdminStatsCards stats={stats} />
-          </Suspense>
+          </div>
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Daily Revenue Report */}
             <div className="lg:col-span-1">
-              <Suspense fallback={
-                <div className="bg-white rounded-[20px] shadow-sm p-6">
-                  <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-                </div>
-              }>
-                <DailyRevenueReport clinicId={params.clinicId} />
-              </Suspense>
+              <DailyRevenueReport clinicId={params.clinicId} />
             </div>
 
             {/* Doctors List */}
             <div className="lg:col-span-1">
-              <Suspense fallback={
-                <div className="bg-white rounded-[20px] shadow-sm p-6">
-                  <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-                </div>
-              }>
-                <DoctorsList doctors={doctors} clinicId={params.clinicId} />
-              </Suspense>
+              <DoctorsList doctors={doctors} clinicId={params.clinicId} />
             </div>
 
             {/* Staff List */}
             <div className="lg:col-span-1">
-              <Suspense fallback={
-                <div className="bg-white rounded-[20px] shadow-sm p-6">
-                  <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-                </div>
-              }>
-                <StaffList staff={staff} clinicId={params.clinicId} />
-              </Suspense>
+              <StaffList staff={staff} clinicId={params.clinicId} />
             </div>
           </div>
 
@@ -96,24 +141,12 @@ export default async function AdminDashboardPage({ params }: AdminDashboardPageP
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {/* Transaction History */}
             <div className="xl:col-span-1">
-              <Suspense fallback={
-                <div className="bg-white rounded-[20px] shadow-sm p-6">
-                  <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-                </div>
-              }>
-                <TransactionHistory transactions={transactions} clinicId={params.clinicId} />
-              </Suspense>
+              <TransactionHistory transactions={transactions} clinicId={params.clinicId} />
             </div>
 
             {/* Appointments */}
             <div className="xl:col-span-1">
-              <Suspense fallback={
-                <div className="bg-white rounded-[20px] shadow-sm p-6">
-                  <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-                </div>
-              }>
-                <AdminAppointments appointments={appointments} clinicId={params.clinicId} />
-              </Suspense>
+              <AdminAppointments appointments={appointments} clinicId={params.clinicId} />
             </div>
           </div>
         </div>

@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'swagger-ui-react/swagger-ui.css';
 
@@ -5,6 +8,16 @@ import 'swagger-ui-react/swagger-ui.css';
 const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false });
 
 export default function ApiDocs() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <div>Loading API documentation...</div>;
+  }
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">DigiGo Care API Documentation</h1>

@@ -1,3 +1,5 @@
+"use client"
+
 import { SignupForm } from "./signup-form"
 import Image from "next/image"
 
