@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { login, getCurrentUser, resetPassword } from "@/lib/actions/auth"
 import { Eye, EyeOff } from "lucide-react"
+import { useAuth } from "@/components/providers/AuthProvider"
 
 export function LoginForm() {
   const router = useRouter()
+  const { setToken } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
@@ -45,10 +47,14 @@ export function LoginForm() {
         email,
         password
       })
-      const token=result.token
-      localStorage.setItem('token_cms', token)
-      console.log(result)
+      const token = result.token
+      
       if (result.success) {
+        // Store the token in context
+        if (token) {
+          setToken(token)
+        }
+        
         // Save credentials if remember me is checked
         if (rememberMe) {
           localStorage.setItem('digigo_email', email)
@@ -56,9 +62,10 @@ export function LoginForm() {
           // Clear saved credentials if remember me is unchecked
           localStorage.removeItem('digigo_email')
         }
+        
         // Get current user to determine redirect path
         // console.log(currentUser)
-        const currentUser=result.user
+        const currentUser = result.user
         console.log(currentUser)
         if (currentUser) {
           // Redirect based on role
