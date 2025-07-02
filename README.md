@@ -1,6 +1,6 @@
 docker exec -it cms-db \
   psql -U postgres -d CMS \
-  -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+  -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;
 
 
 docker run --name cms-db \

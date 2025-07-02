@@ -6,39 +6,23 @@ import { usePathname } from "next/navigation"
 import { LayoutDashboard, Calendar, Users, UserCheck, FileText, CreditCard, Settings, ChevronDown, Building2, Menu, X, Users2, Receipt, Activity, Bed, Pill, FlaskRound as Flask, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { getCurrentUser } from "@/lib/actions/auth"
 import { useAuth } from "@/components/providers/AuthContext"
 
 interface SidebarProps {
   userRole: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF' | 'DOCTOR'
   clinicId?: string
-  userId?: string
 }
 
-export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
+export function Sidebar({ userRole, clinicId}: SidebarProps) {
   const pathname = usePathname()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const { token } = useAuth()
 
-  // Fetch current user
-  useEffect(() => {
-    async function fetchCurrentUser() {
-      if (token) {
-        const user = await getCurrentUser(token)
-        setCurrentUser(user)
-      }
-    }
-    fetchCurrentUser()
-  }, [token])
-
-  // Use session user role if available
-  const effectiveRole = currentUser?.role || userRole
-  const effectiveClinicId = currentUser?.clinicId || clinicId
-  const effectiveUserId = currentUser?.id || userId
+  const effectiveRole =  userRole
+  const effectiveClinicId =  clinicId
+  console.log(effectiveClinicId)
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -95,15 +79,7 @@ export function Sidebar({ userRole, clinicId, userId }: SidebarProps) {
   }
 
   // Generate base paths for each role
-  const getBasePath = (role: string) => {
-    if (effectiveClinicId && effectiveUserId && (role === 'STAFF' || role === 'DOCTOR')) {
-      return `/${effectiveClinicId}/${role.toLowerCase()}/${effectiveUserId}`
-    } else if (effectiveClinicId) {
-      return `/${effectiveClinicId}/${role.toLowerCase()}`
-    } else {
-      return `/${role.toLowerCase()}`
-    }
-  }
+ const getBasePath = (role: string) => `/${clinicId}/${role.toLowerCase()}`
 
   // Admin menu items
   const adminMenuItems = [

@@ -5,56 +5,54 @@ import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { AdminDoctorsClient } from "@/components/admin/doctors/admin-doctors-client"
-import { getDoctors } from "@/lib/actions/doctors"
-import { getClinicById } from "@/lib/actions/clinics"
-import { findById } from "@/lib/db"
+import { useAuthToken } from '@/lib/hooks/useAuthToken'
 import { User } from "@/lib/types"
 
 interface AdminDoctorsPageProps {
-  params: {
-    clinicId: string
-    adminId: string
-  }
+  params: { clinicId: string }
 }
 
 export default function AdminDoctorsPage({ params }: AdminDoctorsPageProps) {
   const router = useRouter()
-  const [clinic, setClinic] = useState<any>(null)
-  const [admin, setAdmin] = useState<User | null>(null)
+  const clinicId = params.clinicId
   const [doctors, setDoctors] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { token } = useAuthToken()
 
   useEffect(() => {
     async function fetchData() {
+      if (!token) return
+
       try {
-        // Verify clinic and admin exist
-        const fetchedClinic = await getClinicById(params.clinicId)
-        const fetchedAdmin = await findById<User>('users', params.adminId)
-        
-        if (!fetchedClinic || !fetchedAdmin || 
-            (fetchedAdmin.role !== 'ADMIN' && fetchedAdmin.role !== 'SUPER_ADMIN') || 
-            fetchedAdmin.clinicId !== params.clinicId) {
-          router.push('/not-found')
-          return
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/get-clinic-users/${clinicId}/doctor`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+          }
+        )
+
+        const data = await res.json()
+        setDoctors(data.users)
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Failed to fetch doctors')
         }
 
-        setClinic(fetchedClinic)
-        setAdmin(fetchedAdmin)
-
-        // Fetch doctors
-        const fetchedDoctors = await getDoctors(params.clinicId)
-        setDoctors(fetchedDoctors)
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching doctors data:', error)
-        setError('Failed to load doctors data')
+        setError(error.message || 'Failed to load doctors data')
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [params.clinicId, params.adminId, router])
+  }, [clinicId, token])
 
   if (loading) {
     return (
@@ -64,7 +62,7 @@ export default function AdminDoctorsPage({ params }: AdminDoctorsPageProps) {
     )
   }
 
-  if (error || !clinic || !admin) {
+  if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -82,13 +80,16 @@ export default function AdminDoctorsPage({ params }: AdminDoctorsPageProps) {
 
   return (
     <div className="flex h-screen bg-[#f4f3ff]">
-      <Sidebar userRole={admin.role} clinicId={params.clinicId} userId={params.adminId} />
+      <Sidebar userRole="ADMIN" clinicId={clinicId} />
       
       <main className="flex-1 overflow-auto ml-0 md:ml-0">
-        <Header clinicName={clinic.name} location={clinic.address.split(',')[0]} />
+        <Header 
+          clinicName={"clinic.name"} 
+          location={("clinic.address || ''").split(',')[0] || 'Unknown'} 
+        />
         
         <div className="p-4 md:p-6 lg:p-[34px]">
-          <AdminDoctorsClient initialDoctors={doctors} />
+          <AdminDoctorsClient doctors={doctors} clinicId={clinicId as string}/>
         </div>
       </main>
     </div>

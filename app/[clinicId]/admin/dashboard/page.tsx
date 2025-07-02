@@ -177,7 +177,8 @@ export default function AdminDashboardPage({ params }: PageProps) {
 
   return (
     <div className="flex h-screen bg-[#f4f3ff]">
-      <Sidebar userRole={"ADMIN"} clinicId={clinicId} userId={params.adminId} />
+      <Sidebar userRole={"ADMIN"} clinicId={clinicId as string} />
+    
 
       <main className="flex-1 overflow-auto">
         <Header clinicName={"clinic.name"} location={"clinic.address.split(',')[0]"} />
