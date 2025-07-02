@@ -32,7 +32,7 @@ interface ClinicsClientProps {
 export function ClinicsClient({ initialClinics, userRole }: ClinicsClientProps) {
   const router = useRouter()
   const { token } = useAuth()
-  const [clinics, setClinics] = useState(initialClinics)
+  const [clinics, setClinics] = useState<Clinic[]>(initialClinics)
   const [searchTerm, setSearchTerm] = useState("")
   const [isFormOpen, setIsFormOpen] = useState(false)
 

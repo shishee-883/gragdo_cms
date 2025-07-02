@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/actions/auth"
 export default async function ClinicsPage(context) {
   try {
     const {token} = context.params
+    
     // Get all clinics
     const clinics = await getClinics(token)
     
